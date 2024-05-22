@@ -4,7 +4,6 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restau
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
