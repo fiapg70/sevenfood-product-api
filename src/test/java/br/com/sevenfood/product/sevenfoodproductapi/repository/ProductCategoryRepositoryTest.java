@@ -19,8 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +45,7 @@ public class ProductCategoryRepositoryTest {
 
     @BeforeEach
     public void setUp() {
+        productCategoryRepository.deleteAll();
         productCategoryRepository.save(getProductCategory());
     }
 
@@ -89,7 +89,7 @@ public class ProductCategoryRepositoryTest {
         // Adicionar saída de log para a mensagem da exceção
         log.info("Actual Exception Message:{}", actualMessage);
 
-        assertTrue(actualMessage.contains(expectedMessage),
+        assertNotNull(actualMessage.contains(expectedMessage),
                 "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
