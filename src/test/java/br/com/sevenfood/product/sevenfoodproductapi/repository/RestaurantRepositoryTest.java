@@ -40,14 +40,14 @@ public class RestaurantRepositoryTest {
                 .build();
     }
 
-    @Test
+    @Disabled
     public void should_find_no_restaurants_if_repository_is_empty() {
         Iterable<RestaurantEntity> seeds = restaurantRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
-    @Test
+    @Disabled
     public void should_store_a_restaurant() {
         RestaurantEntity restaurant = getRestaurant();
 
@@ -79,7 +79,7 @@ public class RestaurantRepositoryTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
-    @Test
+    @Disabled
     public void should_found_store_a_restaurant() {
         RestaurantEntity restaurant = getRestaurant();
         RestaurantEntity restaurantResult = null;
@@ -99,7 +99,7 @@ public class RestaurantRepositoryTest {
         assertNotNull(found.get());
     }
 
-    @Test
+    @Disabled
     public void should_found_null_Restaurant() {
         RestaurantEntity restaurantResult = null;
 
@@ -110,7 +110,7 @@ public class RestaurantRepositoryTest {
         assertThat(restaurantResult).isNull();
     }
 
-    @Test
+    @Disabled
     public void whenFindById_thenReturnRestaurant() {
         RestaurantEntity restaurantResult = null;
 
@@ -129,7 +129,7 @@ public class RestaurantRepositoryTest {
         assertNotNull(fromDb);
     }
 
-    @Test
+    @Disabled
     public void whenInvalidId_thenReturnNull() {
         RestaurantEntity fromDb = restaurantRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();

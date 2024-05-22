@@ -31,7 +31,7 @@ public class ProductCategoryEntity extends AuditDomain {
     @Schema(description = "name of the Product.",
             example = "V$", required = true)
     @NotNull(message = "o campo \"name\" é obrigario")
-    @Size(min = 3, max = 255)
+    @Size(min = 1, max = 255)
     @Column(name = "name", length = 255)
     private String name;
 
