@@ -3,7 +3,9 @@ package br.com.sevenfood.product.sevenfoodproductapi.repository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.Disabled;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,14 @@ import org.springframework.test.context.TestPropertySource;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest
 @ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource("classpath:application-test.properties")
 public class RestaurantRepositoryTest {
 
@@ -32,6 +36,7 @@ public class RestaurantRepositoryTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+
     private RestaurantEntity getRestaurant() {
         return RestaurantEntity.builder()
                 .name("Seven Food")
@@ -39,133 +44,122 @@ public class RestaurantRepositoryTest {
                 .build();
     }
 
-    @Disabled
-    public void should_find_no_restaurants_if_repository_is_empty() {
+    @BeforeEach
+    public void setUp() {
+        restaurantRepository.save(getRestaurant());
+    }
+
+    @Test
+    public void should_find_no_clients_if_repository_is_empty() {
         Iterable<RestaurantEntity> seeds = restaurantRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
-    @Disabled
-    public void should_store_a_restaurant() {
-        RestaurantEntity restaurant = getRestaurant();
+    @Test
+    public void should_store_a_product_category() {
+        String nomeFilial = "Seven Food Filial";
+        Optional<RestaurantEntity> restaurant = restaurantRepository.findByName(nomeFilial);
+        Optional<RestaurantEntity> restaurantResponse = null;
+        if (!restaurant.isPresent()) {
 
-        Optional<RestaurantEntity> restaurantRestaurant = restaurantRepository.findById(1l);
-        if (restaurantRestaurant.isPresent()) {
-
-            RestaurantEntity anaFurtadoCorreia = RestaurantEntity.builder()
-                    .name("Seven Food")
-                    .cnpj("02.365.347/0001-63")
+            RestaurantEntity restaurantFilial = RestaurantEntity.builder()
+                    .name(nomeFilial)
+                    .cnpj("93.563.658/0001-92")
                     .build();
 
-           restaurantRepository.save(anaFurtadoCorreia);
+            RestaurantEntity save = restaurantRepository.save(restaurantFilial);
+            restaurantResponse = restaurantRepository.findByName(nomeFilial);
         }
 
-        assertThat(restaurant).hasFieldOrPropertyWithValue("name", "Seven Food");
-        assertThat(restaurant).hasFieldOrPropertyWithValue("cnpj", "02.365.347/0001-63");
+        RestaurantEntity restaurant1 = restaurantResponse.get();
+        assertThat(restaurant1).hasFieldOrPropertyWithValue("name", nomeFilial);
     }
 
-    @Disabled
-    public void whenDerivedExceptionThrown_thenAssertionSucceeds() {
-        Exception exception = assertThrows(ConstraintViolationException.class, () -> {
-            RestaurantEntity restaurant = getRestaurant();
+    @Test
+    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
+        RestaurantEntity restaurant = createInvalidRestaurant();
+
+        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
             restaurantRepository.save(restaurant);
         });
 
-        String expectedMessage = "For input string";
+        String expectedMessage = "tamanho deve ser entre 1 e 255";
         String actualMessage = exception.getMessage();
 
-        assertTrue(actualMessage.contains(expectedMessage));
+        // Adicionar saída de log para a mensagem da exceção
+        log.info("Actual Exception Message:{}", actualMessage);
+
+        assertTrue(actualMessage.contains(expectedMessage),
+                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
-    @Disabled
-    public void should_found_store_a_restaurant() {
-        RestaurantEntity restaurant = getRestaurant();
-        RestaurantEntity restaurantResult = null;
-
-        Optional<RestaurantEntity> restaurantOp = restaurantRepository.findById(1l);
-        if (restaurantOp.isPresent()) {
-
-            RestaurantEntity anaFurtadoCorreia = RestaurantEntity.builder()
-                    .name("Seven Food")
-                    .cnpj("02.365.347/0001-63")
-                    .build();
-
-            restaurantResult = restaurantRepository.save(anaFurtadoCorreia);
-        }
-
-        Optional<RestaurantEntity> found = restaurantRepository.findById(restaurantResult.getId());
-        assertNotNull(found.get());
+    private RestaurantEntity createInvalidRestaurant() {
+        RestaurantEntity restaurant = new RestaurantEntity();
+        // Configurar o restaurant com valores inválidos
+        // Exemplo: valores inválidos que podem causar uma ConstraintViolationException
+        restaurant.setName(""); // Nome vazio pode causar uma violação
+        return restaurant;
     }
 
-    @Disabled
+    @Test
     public void should_found_null_Restaurant() {
-        RestaurantEntity restaurantResult = null;
+        RestaurantEntity restaurant = null;
 
         Optional<RestaurantEntity> fromDb = restaurantRepository.findById(99l);
         if (fromDb.isPresent()) {
-            restaurantResult = fromDb.get();
+            restaurant = fromDb.get();
         }
-        assertThat(restaurantResult).isNull();
+        assertThat(restaurant).isNull();
     }
 
-    @Disabled
+    @Test
     public void whenFindById_thenReturnRestaurant() {
-        RestaurantEntity restaurantResult = null;
-
         Optional<RestaurantEntity> restaurant = restaurantRepository.findById(1l);
         if (restaurant.isPresent()) {
-
-            RestaurantEntity anaFurtadoCorreia = RestaurantEntity.builder()
-                    .name("Seven Food")
-                    .cnpj("02.365.347/0001-63")
-                    .build();
-
-            restaurantResult = restaurantRepository.save(anaFurtadoCorreia);
+            RestaurantEntity restaurantResult = restaurant.get();
+            assertThat(restaurantResult).hasFieldOrPropertyWithValue("name", "Seven Food");
         }
-
-        RestaurantEntity fromDb = restaurantRepository.findById(restaurantResult.getId()).orElse(null);
-        assertNotNull(fromDb);
     }
 
-    @Disabled
+    @Test
     public void whenInvalidId_thenReturnNull() {
         RestaurantEntity fromDb = restaurantRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();
     }
 
-    @Disabled
+    @Test
     public void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
-        RestaurantEntity restaurantResult = null;
-        RestaurantEntity restaurantResult2 = null;
-        RestaurantEntity restaurantResult3 = null;
+        RestaurantEntity restaurant = null;
+        RestaurantEntity restaurant1 = null;
+        RestaurantEntity restaurant2 = null;
 
-        Optional<RestaurantEntity> restaurant = restaurantRepository.findById(1l);
-        if (restaurant.isPresent()) {
+        Optional<RestaurantEntity> restaurantResult = restaurantRepository.findById(1l);
+        if (restaurantResult.isPresent()) {
 
             RestaurantEntity anaFurtadoCorreia = RestaurantEntity.builder()
                     .name("Seven Food")
                     .cnpj("02.365.347/0001-63")
                     .build();
-            restaurantResult = restaurantRepository.save(anaFurtadoCorreia);
+            restaurant = restaurantRepository.save(anaFurtadoCorreia);
 
             RestaurantEntity alessandroRezendeFurtado = RestaurantEntity.builder()
                     .name("Seven Food - MG")
                     .cnpj("02.365.347/0001-63")
                     .build();
-            restaurantResult2 = restaurantRepository.save(anaFurtadoCorreia);
+            restaurant1 = restaurantRepository.save(anaFurtadoCorreia);
 
             RestaurantEntity robertaGimenesMoura = RestaurantEntity.builder()
                     .name("Seven Food - SC")
                     .cnpj("02.365.347/0001-63")
                     .build();
-            restaurantResult3 = restaurantRepository.save(anaFurtadoCorreia);
+            restaurant2 = restaurantRepository.save(anaFurtadoCorreia);
 
         }
 
         Iterator<RestaurantEntity> allRestaurants = restaurantRepository.findAll().iterator();
-        List<RestaurantEntity> restaurants = new ArrayList<>();
-        allRestaurants.forEachRemaining(c -> restaurants.add(c));
+        List<RestaurantEntity> clients = new ArrayList<>();
+        allRestaurants.forEachRemaining(c -> clients.add(c));
 
         assertThat(allRestaurants);
     }

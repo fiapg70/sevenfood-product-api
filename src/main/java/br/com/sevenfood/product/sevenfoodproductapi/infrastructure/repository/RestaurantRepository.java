@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface RestaurantRepository extends JpaRepository<RestaurantEntity, Long> {
     Optional<RestaurantEntity> findByCnpj(String cnpj);
+    Optional<RestaurantEntity> findByName(String cocaColaBeverage);
 }
