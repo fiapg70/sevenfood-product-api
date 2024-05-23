@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class RestaurantServiceTest {
+class RestaurantServiceTest {
 
     @InjectMocks
     RestaurantService restaurantService;
@@ -92,7 +92,7 @@ public class RestaurantServiceTest {
     }
 
     @Test
-    public void getAllRestaurantsTest() {
+    void getAllRestaurantsTest() {
         List<Restaurant> restaurants = new ArrayList<>();
         List<RestaurantEntity> listEntity = new ArrayList<>();
 
@@ -120,7 +120,7 @@ public class RestaurantServiceTest {
     }
 
     @Test
-    public void getRestaurantByIdTest() {
+    void getRestaurantByIdTest() {
         Restaurant restaurant1 = getRestaurant();
         when(restaurantService.findById(1L)).thenReturn(restaurant1);
 
@@ -131,7 +131,7 @@ public class RestaurantServiceTest {
     }
 
     @Test
-    public void getFindRestaurantByShortIdTest() {
+    void getFindRestaurantByShortIdTest() {
         Restaurant restaurant = getRestaurant();
         when(restaurantService.findById(1L)).thenReturn(restaurant);
 
@@ -142,7 +142,7 @@ public class RestaurantServiceTest {
     }
 
     @Test
-    public void createRestaurantTest() {
+    void createRestaurantTest() {
         Restaurant restaurant = getRestaurant();
         Restaurant restaurantResult = getRestaurant();
         restaurantResult.setId(1L);

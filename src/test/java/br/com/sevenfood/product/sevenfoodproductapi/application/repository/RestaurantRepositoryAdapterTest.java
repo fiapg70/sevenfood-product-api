@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class RestaurantRepositoryAdapterTest {
+class RestaurantRepositoryAdapterTest {
 
     @InjectMocks
     RestaurantRepositoryAdapter pestaurantRepositoryAdapter;
@@ -56,14 +56,14 @@ public class RestaurantRepositoryAdapterTest {
     }
 
     @Test
-    public void should_find_no_clients_if_repository_is_empty() {
+    void should_find_no_clients_if_repository_is_empty() {
         Iterable<RestaurantEntity> seeds = pestaurantRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
     @Test
-    public void should_store_a_product_category() {
+    void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
         RestaurantEntity cocaCola = RestaurantEntity.builder()
                 .name(cocaColaBeverage)
@@ -102,7 +102,7 @@ public class RestaurantRepositoryAdapterTest {
     }
 
     @Test
-    public void should_found_null_Restaurant() {
+    void should_found_null_Restaurant() {
         RestaurantEntity pestaurant = null;
 
         when(pestaurantRepository.findById(99l)).thenReturn(Optional.empty());
@@ -115,7 +115,7 @@ public class RestaurantRepositoryAdapterTest {
     }
 
     @Test
-    public void whenFindById_thenReturnRestaurant() {
+    void whenFindById_thenReturnRestaurant() {
         Optional<RestaurantEntity> pestaurant = pestaurantRepository.findById(1l);
         if (pestaurant.isPresent()) {
             RestaurantEntity pestaurantResult = pestaurant.get();
@@ -124,13 +124,13 @@ public class RestaurantRepositoryAdapterTest {
     }
 
     @Test
-    public void whenInvalidId_thenReturnNull() {
+    void whenInvalidId_thenReturnNull() {
         RestaurantEntity fromDb = pestaurantRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();
     }
 
     @Test
-    public void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
+    void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
         RestaurantEntity pestaurant = null;
         RestaurantEntity pestaurant1 = null;
         RestaurantEntity pestaurant2 = null;

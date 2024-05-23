@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @TestPropertySource("classpath:application-test.properties")
-public class ProductCategoryResourcesTest {
+class ProductCategoryResourcesTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -60,7 +60,7 @@ public class ProductCategoryResourcesTest {
     }
 
     @Test
-    public void getAll() throws Exception
+    void getAll() throws Exception
     {
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/v1/product-categories")
@@ -73,7 +73,7 @@ public class ProductCategoryResourcesTest {
 
 
     @Test
-    public void create() throws Exception {
+    void create() throws Exception {
         String create = JsonUtil.getJson(getProductCategory());
 
         mockMvc.perform( MockMvcRequestBuilders
@@ -87,7 +87,7 @@ public class ProductCategoryResourcesTest {
 
 
     @Test
-    public void update() throws Exception {
+    void update() throws Exception {
         String update = JsonUtil.getJson(getProductCategoryUpdate());
 
         mockMvc.perform( MockMvcRequestBuilders
@@ -100,7 +100,7 @@ public class ProductCategoryResourcesTest {
     }
 
     @Test
-    public void delete() throws Exception
+    void delete() throws Exception
     {
         mockMvc.perform( MockMvcRequestBuilders.delete("/v1/product-categories/{id}", 1) )
                 .andExpect(status().isOk());

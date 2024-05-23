@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource("classpath:application-test.properties")
-public class ProductCategoryRepositoryTest {
+class ProductCategoryRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -51,14 +51,14 @@ public class ProductCategoryRepositoryTest {
     }
 
     @Test
-    public void should_find_no_clients_if_repository_is_empty() {
+    void should_find_no_clients_if_repository_is_empty() {
         Iterable<ProductCategoryEntity> seeds = productCategoryRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
     @Test
-    public void should_store_a_product_category() {
+    void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
         Optional<ProductCategoryEntity> productCategory = productCategoryRepository.findByName(cocaColaBeverage);
         Optional<ProductCategoryEntity> productCategoryResponse = null;
@@ -103,7 +103,7 @@ public class ProductCategoryRepositoryTest {
     }
 
     @Test
-    public void should_found_null_ProductCategory() {
+    void should_found_null_ProductCategory() {
         ProductCategoryEntity productCategory = null;
 
         Optional<ProductCategoryEntity> fromDb = productCategoryRepository.findById(99l);
@@ -114,7 +114,7 @@ public class ProductCategoryRepositoryTest {
     }
 
     @Test
-    public void whenFindById_thenReturnProductCategory() {
+    void whenFindById_thenReturnProductCategory() {
         Optional<ProductCategoryEntity> productCategory = productCategoryRepository.findById(1l);
         if (productCategory.isPresent()) {
             ProductCategoryEntity productCategoryResult = productCategory.get();
@@ -123,13 +123,13 @@ public class ProductCategoryRepositoryTest {
     }
 
     @Test
-    public void whenInvalidId_thenReturnNull() {
+    void whenInvalidId_thenReturnNull() {
         ProductCategoryEntity fromDb = productCategoryRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();
     }
 
     @Test
-    public void givenSetOfProductCategorys_whenFindAll_thenReturnAllProductCategorys() {
+    void givenSetOfProductCategorys_whenFindAll_thenReturnAllProductCategorys() {
         ProductCategoryEntity productCategory = null;
         ProductCategoryEntity productCategory1 = null;
         ProductCategoryEntity productCategory2 = null;

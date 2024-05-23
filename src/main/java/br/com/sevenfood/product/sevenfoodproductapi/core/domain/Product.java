@@ -1,5 +1,6 @@
 package br.com.sevenfood.product.sevenfoodproductapi.core.domain;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-//@Tag(name = "Resident object")
+@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
 public class Product implements Serializable {
     private Long id;
     private String code;

@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product object")
+@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
 public class ProductEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",

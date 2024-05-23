@@ -14,15 +14,15 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product Category object")
+@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
 public class ProductCategoryRequest implements Serializable {
 
     @Schema(description = "Unique identifier of the Driver.",
-            example = "1", required = true)
+            example = "1")
     private Long id;
 
     @Schema(description = "Name of the Product Category.",
-            example = "Bebida", required = true)
+            example = "Bebida")
     @Size(min = 3, max = 255)
     private String name;
 }

@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource("classpath:application-test.properties")
-public class RestaurantRepositoryTest {
+class RestaurantRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -51,14 +51,14 @@ public class RestaurantRepositoryTest {
     }
 
     @Test
-    public void should_find_no_clients_if_repository_is_empty() {
+    void should_find_no_clients_if_repository_is_empty() {
         Iterable<RestaurantEntity> seeds = restaurantRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
     @Test
-    public void should_store_a_product_category() {
+    void should_store_a_product_category() {
         String nomeFilial = "Seven Food Filial";
         Optional<RestaurantEntity> restaurant = restaurantRepository.findByName(nomeFilial);
         Optional<RestaurantEntity> restaurantResponse = null;
@@ -104,7 +104,7 @@ public class RestaurantRepositoryTest {
     }
 
     @Test
-    public void should_found_null_Restaurant() {
+    void should_found_null_Restaurant() {
         RestaurantEntity restaurant = null;
 
         Optional<RestaurantEntity> fromDb = restaurantRepository.findById(99l);
@@ -115,7 +115,7 @@ public class RestaurantRepositoryTest {
     }
 
     @Test
-    public void whenFindById_thenReturnRestaurant() {
+    void whenFindById_thenReturnRestaurant() {
         Optional<RestaurantEntity> restaurant = restaurantRepository.findById(1l);
         if (restaurant.isPresent()) {
             RestaurantEntity restaurantResult = restaurant.get();
@@ -124,13 +124,13 @@ public class RestaurantRepositoryTest {
     }
 
     @Test
-    public void whenInvalidId_thenReturnNull() {
+    void whenInvalidId_thenReturnNull() {
         RestaurantEntity fromDb = restaurantRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();
     }
 
     @Test
-    public void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
+    void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
         RestaurantEntity restaurant = null;
         RestaurantEntity restaurant1 = null;
         RestaurantEntity restaurant2 = null;

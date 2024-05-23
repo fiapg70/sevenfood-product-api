@@ -109,7 +109,7 @@ public class ProductCategoryRepositoryAdapterTest {
     }
 
     @Test
-    public void should_found_null_ProductCategory() {
+    void should_found_null_ProductCategory() {
         ProductCategoryEntity productCategory = null;
 
         when(productCategoryRepository.findById(99l)).thenReturn(Optional.empty());
@@ -122,7 +122,7 @@ public class ProductCategoryRepositoryAdapterTest {
     }
 
     @Test
-    public void whenFindById_thenReturnProductCategory() {
+    void whenFindById_thenReturnProductCategory() {
         Optional<ProductCategoryEntity> productCategory = productCategoryRepository.findById(1l);
         if (productCategory.isPresent()) {
             ProductCategoryEntity productCategoryResult = productCategory.get();
@@ -131,13 +131,13 @@ public class ProductCategoryRepositoryAdapterTest {
     }
 
     @Test
-    public void whenInvalidId_thenReturnNull() {
+    void whenInvalidId_thenReturnNull() {
         ProductCategoryEntity fromDb = productCategoryRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();
     }
 
     @Test
-    public void givenSetOfProductCategorys_whenFindAll_thenReturnAllProductCategorys() {
+    void givenSetOfProductCategorys_whenFindAll_thenReturnAllProductCategorys() {
         ProductCategoryEntity productCategory = null;
         ProductCategoryEntity productCategory1 = null;
         ProductCategoryEntity productCategory2 = null;

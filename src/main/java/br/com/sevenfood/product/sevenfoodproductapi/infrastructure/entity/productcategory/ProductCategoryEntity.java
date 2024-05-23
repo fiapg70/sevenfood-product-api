@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product object")
+@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
 public class ProductCategoryEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",

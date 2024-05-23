@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class ProductServiceTest {
+class ProductServiceTest {
 
     @InjectMocks
     ProductService productService;
@@ -155,7 +155,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void getAllProductsTest() {
+    void getAllProductsTest() {
         List<Product> products = new ArrayList<>();
         List<ProductEntity> listEntity = new ArrayList<>();
 
@@ -183,7 +183,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void getProductByIdTest() {
+    void getProductByIdTest() {
         Product product1 = getProduct(getRestaurant(), getProductCategory());
         when(productService.findById(1L)).thenReturn(product1);
 
@@ -193,7 +193,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void getFindProductByShortIdTest() {
+    void getFindProductByShortIdTest() {
         Product product = getProduct(getRestaurant(), getProductCategory());
         when(productService.findById(1L)).thenReturn(product);
 
@@ -203,7 +203,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void createProductTest() {
+    void createProductTest() {
         Product product = getProduct(getRestaurant(), getProductCategory());
         Product productResult = getProduct(getRestaurant(), getProductCategory());
         productResult.setId(1L);

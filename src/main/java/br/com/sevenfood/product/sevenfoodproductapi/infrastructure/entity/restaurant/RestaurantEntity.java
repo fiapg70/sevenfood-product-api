@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Restaurant object")
+@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
 public class RestaurantEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",
