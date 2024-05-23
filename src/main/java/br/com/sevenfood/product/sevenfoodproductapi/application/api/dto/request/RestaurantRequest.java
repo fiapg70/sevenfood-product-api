@@ -2,13 +2,13 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.br.CNPJ;
 
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Data

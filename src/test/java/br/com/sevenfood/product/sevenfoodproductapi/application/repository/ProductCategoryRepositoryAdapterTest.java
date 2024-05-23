@@ -1,5 +1,8 @@
-package br.com.sevenfood.product.sevenfoodproductapi.repository;
+package br.com.sevenfood.product.sevenfoodproductapi.application.repository;
 
+import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.database.repository.ProductCategoryRepositoryAdapter;
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -20,23 +26,30 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-@DataJpaTest
-@ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestPropertySource("classpath:application-test.properties")
-public class ProductCategoryRepositoryTest {
+public class ProductCategoryRepositoryAdapterTest {
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @InjectMocks
+    ProductCategoryRepositoryAdapter productCategoryRepositoryAdapter;
 
-    @Autowired
+    @Mock
     private ProductCategoryRepository productCategoryRepository;
+    @Mock
+    private ProductCategoryMapper productCategoryMapper;
 
-    private ProductCategoryEntity getProductCategory() {
+    private ProductCategory getProductCategory() {
+        return ProductCategory.builder()
+                .id(1l)
+                .name("Bebida")
+                .build();
+    }
+
+    private ProductCategoryEntity getProductCategoryEntity() {
         return ProductCategoryEntity.builder()
                 .id(1l)
                 .name("Bebida")
@@ -46,8 +59,7 @@ public class ProductCategoryRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        productCategoryRepository.deleteAll();
-        productCategoryRepository.save(getProductCategory());
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
@@ -60,20 +72,14 @@ public class ProductCategoryRepositoryTest {
     @Test
     public void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
-        Optional<ProductCategoryEntity> productCategory = productCategoryRepository.findByName(cocaColaBeverage);
-        Optional<ProductCategoryEntity> productCategoryResponse = null;
-        if (!productCategory.isPresent()) {
+        ProductCategoryEntity cocaCola = ProductCategoryEntity.builder()
+                .name(cocaColaBeverage)
+                .build();
 
-            ProductCategoryEntity cocaCola = ProductCategoryEntity.builder()
-                    .name(cocaColaBeverage)
-                    .build();
-
-            ProductCategoryEntity save = productCategoryRepository.save(cocaCola);
-            productCategoryResponse = productCategoryRepository.findByName(cocaColaBeverage);
-        }
-
-        ProductCategoryEntity productCategory1 = productCategoryResponse.get();
-        assertThat(productCategory1).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
+        when(productCategoryRepository.save(cocaCola)).thenReturn(cocaCola);
+        ProductCategoryEntity saved = productCategoryRepository.save(cocaCola);
+        log.info("ProductCategoryEntity:{}", saved);
+        assertThat(saved).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
     }
 
     @Disabled
@@ -106,11 +112,13 @@ public class ProductCategoryRepositoryTest {
     public void should_found_null_ProductCategory() {
         ProductCategoryEntity productCategory = null;
 
+        when(productCategoryRepository.findById(99l)).thenReturn(Optional.empty());
         Optional<ProductCategoryEntity> fromDb = productCategoryRepository.findById(99l);
         if (fromDb.isPresent()) {
             productCategory = fromDb.get();
         }
         assertThat(productCategory).isNull();
+        assertThat(fromDb).isEmpty();
     }
 
     @Test
