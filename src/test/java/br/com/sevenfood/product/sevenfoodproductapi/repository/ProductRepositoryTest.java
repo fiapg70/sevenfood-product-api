@@ -1,5 +1,6 @@
 package br.com.sevenfood.product.sevenfoodproductapi.repository;
 
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
@@ -17,7 +18,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.TestPropertySource;
 
 import javax.validation.ConstraintViolationException;
@@ -28,15 +28,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@ExtendWith(MockitoExtension.class)
 @DataJpaTest
 @ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource("classpath:application-test.properties")
-public class ProductRepositoryTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
+class ProductRepositoryTest {
 
     @Autowired
     private ProductRepository productRepository;
@@ -47,10 +43,26 @@ public class ProductRepositoryTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    private RestaurantEntity restaurant;
+    private ProductCategoryEntity productCategory;
+
+    @BeforeEach
+    public void setUp() {
+        productRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+        restaurantRepository.deleteAll();
+
+        restaurant = restaurantRepository.save(getRestaurant());
+        productCategory = productCategoryRepository.save(getProductCategory());
+
+        ProductEntity product = productRepository.save(getProduct(restaurant, productCategory));
+        log.info("ProductEntity:{}", product);
+    }
+
     private RestaurantEntity getRestaurant() {
         return RestaurantEntity.builder()
                 .name("Seven Food")
-                .cnpj("02.365.347/0001-63")
+                .cnpj(UUID.randomUUID().toString())
                 .build();
     }
 
@@ -66,59 +78,122 @@ public class ProductRepositoryTest {
                 .build();
     }
 
+    private ProductEntity getProduct1(RestaurantEntity restaurantEntity, ProductCategoryEntity productCategory) {
+        return ProductEntity.builder()
+                .name("Bebida2")
+                .code(UUID.randomUUID().toString())
+                .pic("hhh")
+                .price(BigDecimal.TEN)
+                .description("Coca-Cola")
+                .productCategory(productCategory)
+                .restaurant(restaurantEntity)
+                .build();
+    }
+
+    private ProductEntity getProduct2(RestaurantEntity restaurantEntity, ProductCategoryEntity productCategory) {
+        return ProductEntity.builder()
+                .name("Bebida3")
+                .code(UUID.randomUUID().toString())
+                .pic("hhh")
+                .price(BigDecimal.TEN)
+                .description("Coca-Cola")
+                .productCategory(productCategory)
+                .restaurant(restaurantEntity)
+                .build();
+    }
+
     private ProductCategoryEntity getProductCategory() {
         return ProductCategoryEntity.builder()
                 .name("Bebida")
                 .build();
     }
 
-    @BeforeEach
-    public void setInitUp() {
+    @Test
+    void should_find_no_products_if_repository_is_empty() {
         productRepository.deleteAll();
-        productCategoryRepository.deleteAll();
-        restaurantRepository.deleteAll();
+        Iterable<ProductEntity> products = productRepository.findAll();
+        assertThat(products).isEmpty();
+    }
 
-        RestaurantEntity restaurant = restaurantRepository.save(getRestaurant());
-        ProductCategoryEntity productCategory = productCategoryRepository.save(getProductCategory());
+    @Test
+    void should_store_a_product() {
+        ProductEntity product = getProduct(restaurant, productCategory);
+        ProductEntity savedProduct = productRepository.save(product);
 
+        assertThat(savedProduct).isNotNull();
+        assertThat(savedProduct.getId()).isNotNull();
+        assertThat(savedProduct.getName()).isEqualTo(product.getName());
+    }
+
+    @Test
+    void should_find_product_by_id() {
+        ProductEntity product = getProduct(restaurant, productCategory);
+        ProductEntity savedProduct = productRepository.save(product);
+
+        Optional<ProductEntity> foundProduct = productRepository.findById(savedProduct.getId());
+        assertThat(foundProduct).isPresent();
+        assertThat(foundProduct.get().getName()).isEqualTo(savedProduct.getName());
+    }
+
+    @Test
+    void should_find_all_products() {
+        ProductEntity product1 = productRepository.save(getProduct(restaurant, productCategory));
+        ProductEntity product2 = productRepository.save(getProduct(restaurant, productCategory));
+        ProductEntity product3 = productRepository.save(getProduct(restaurant, productCategory));
+
+        Iterable<ProductEntity> products = productRepository.findAll();
+        List<ProductEntity> productList = new ArrayList<>();
+        products.forEach(productList::add);
+
+        assertThat(productList).hasSize(3);
+        assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
+    }
+
+    @Test
+    void should_delete_all_products() {
         ProductEntity product = productRepository.save(getProduct(restaurant, productCategory));
-        log.info("ProductEntity:{}", product);
-    }
-
-    @Test
-    public void should_find_no_clients_if_repository_is_empty() {
-        Iterable<ProductEntity> seeds = productRepository.findAll();
-        seeds = Collections.EMPTY_LIST;
-        assertThat(seeds).isEmpty();
-    }
-
-    @Test
-    public void should_store_a_client() {
-        restaurantRepository.deleteAll();
-        productCategoryRepository.deleteAll();
         productRepository.deleteAll();
 
-        Optional<RestaurantEntity> restaurant = restaurantRepository.findById(1l);
-        Optional<ProductCategoryEntity> productCategoryOp = productCategoryRepository.findById(1l);
-        if (productCategoryOp.isPresent() && restaurant.isPresent()) {
+        Iterable<ProductEntity> products = productRepository.findAll();
+        assertThat(products).isEmpty();
+    }
 
-            ProductEntity bebida = ProductEntity.builder()
-                    .name("Bebida")
-                    .code(UUID.randomUUID().toString())
-                    .pic("hhh")
-                    .price(BigDecimal.TEN)
-                    .description("Coca-Cola")
-                    .productCategory(productCategoryOp.get())
-                    .restaurant(restaurant.get())
-                    .build();
+    @Test
+    void whenInvalidId_thenReturnNull() {
+        ProductEntity fromDb = productRepository.findById(-11L).orElse(null);
+        assertThat(fromDb).isNull();
+    }
 
-            productRepository.save(bebida);
-            assertThat(bebida).hasFieldOrPropertyWithValue("name", "Bebida");
-        }
+    @Test
+    void givenSetOfProducts_whenFindAll_thenReturnAllProducts() {
+        productRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+        restaurantRepository.deleteAll();
+
+        List<ProductEntity> all = productRepository.findAll();
+        log.info(all.toString());
+
+        RestaurantEntity restaurant1 = restaurantRepository.save(getRestaurant());
+        ProductCategoryEntity productCategory1 = productCategoryRepository.save(getProductCategory());
+
+        ProductEntity product = getProduct(restaurant1, productCategory1);
+        log.info("ProductEntity:{}", product);
+        ProductEntity product1 = productRepository.save(product);
+
+        ProductEntity product2 = getProduct1(restaurant1, productCategory1);
+        log.info("ProductEntity:{}", product2);
+        ProductEntity product3 = productRepository.save(product2);
+
+        Iterable<ProductEntity> products = productRepository.findAll();
+        List<ProductEntity> productList = new ArrayList<>();
+        products.forEach(productList::add);
+
+        assertThat(productList).hasSize(2);
+        //assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
     }
 
     @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
+    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
         ProductEntity productCategory = createInvalidProductCategory();
 
         ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
@@ -131,7 +206,7 @@ public class ProductRepositoryTest {
         // Adicionar saída de log para a mensagem da exceção
         log.info("Actual Exception Message:{}", actualMessage);
 
-        assertNotNull(actualMessage.contains(expectedMessage),
+        assertTrue(actualMessage.contains(expectedMessage),
                 "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
@@ -141,108 +216,5 @@ public class ProductRepositoryTest {
         // Exemplo: valores inválidos que podem causar uma ConstraintViolationException
         productCategory.setName(""); // Nome vazio pode causar uma violação
         return productCategory;
-    }
-
-    @Disabled
-    public void should_found_store_a_client() { //TODO: Refatorar
-        ProductEntity productResuslt = null;
-
-        Optional<RestaurantEntity> restaurantOp = restaurantRepository.findById(1l);
-        Optional<ProductCategoryEntity> productCategoryOp = productCategoryRepository.findById(1l);
-        if (productCategoryOp.isPresent() && restaurantOp.isPresent()) {
-
-            ProductEntity bebida = ProductEntity.builder()
-                    .name("Bife Vegano")
-                    .code(UUID.randomUUID().toString())
-                    .pic("hhh")
-                    .price(BigDecimal.TEN)
-                    .description("Coca-Colas ")
-                    .productCategory(productCategoryOp.get())
-                    .restaurant(restaurantOp.get())
-                    .build();
-
-            productResuslt = productRepository.save(bebida);
-        }
-
-        Optional<ProductEntity> found = productRepository.findById(productResuslt.getId());
-        assertNotNull(found.get());
-    }
-
-    @Disabled
-    public void whenFindById_thenReturnProduct() {
-        ProductEntity productResult = null;
-
-        Optional<RestaurantEntity> restaurant = restaurantRepository.findById(1l);
-        Optional<ProductCategoryEntity> productCategoryOp = productCategoryRepository.findById(1l);
-        if (productCategoryOp.isPresent() && restaurant.isPresent()) {
-
-            ProductEntity bebida = ProductEntity.builder()
-                    .name("Bebida")
-                    .pic("hhh")
-                    .price(BigDecimal.TEN)
-                    .description("Coca-Cola")
-                    .productCategory(productCategoryOp.get())
-                    .restaurant(restaurant.get())
-                    .build();
-
-            productResult = productRepository.save(bebida);
-        }
-
-        ProductEntity fromDb = productRepository.findById(productResult.getId()).orElse(null);
-        assertNotNull(fromDb);
-    }
-
-    @Test
-    public void whenInvalidId_thenReturnNull() {
-        ProductEntity fromDb = productRepository.findById(-11l).orElse(null);
-        assertThat(fromDb).isNull();
-    }
-
-    @Test
-    public void givenSetOfProducts_whenFindAll_thenReturnAllProducts() {
-        ProductEntity productResult = null;
-        ProductEntity productResult2 = null;
-        ProductEntity productResult3 = null;
-
-        Optional<ProductCategoryEntity> productCategoryOp = productCategoryRepository.findById(1l);
-        if (productCategoryOp.isPresent()) {
-
-            ProductEntity bebida = ProductEntity.builder()
-                    .name("Bebida")
-                    .pic("hhh")
-                    .price(BigDecimal.TEN)
-                    .description("Coca-Cola")
-                    .productCategory(productCategoryOp.get())
-                    .build();
-
-            productResult = productRepository.save(bebida);
-
-            ProductEntity acompanhamento = ProductEntity.builder()
-                    .name("Acompanhamento")
-                    .pic("hhh")
-                    .price(BigDecimal.TEN)
-                    .description("Cebola")
-                    .productCategory(productCategoryOp.get())
-                    .build();
-
-            productResult2 = productRepository.save(acompanhamento);
-
-            ProductEntity lanche = ProductEntity.builder()
-                    .name("Lanche")
-                    .pic("hhh")
-                    .price(BigDecimal.TEN)
-                    .description("Coca-Cola")
-                    .productCategory(productCategoryOp.get())
-                    .build();
-
-            productResult3 = productRepository.save(lanche);
-
-        }
-
-        Iterator<ProductEntity> allProducts = productRepository.findAll().iterator();
-        List<ProductEntity> clients = new ArrayList<>();
-        allProducts.forEachRemaining(c -> clients.add(c));
-
-        assertThat(allProducts);
     }
 }

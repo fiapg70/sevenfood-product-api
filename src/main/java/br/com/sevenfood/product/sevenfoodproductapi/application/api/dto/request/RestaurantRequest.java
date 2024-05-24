@@ -15,20 +15,21 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Restaurant object")
+@Schema(description = "RestaurantRequest", requiredProperties = {"id, code, cnpj"})
+@Tag(name = "RestaurantRequest", description = "Model")
 public class RestaurantRequest implements Serializable {
 
     @Schema(description = "Unique identifier of the Driver.",
-            example = "1", required = true)
+            example = "1")
     private Long id;
 
     @Schema(description = "Name of the Restaurant.",
-            example = "Seven Food", required = true)
+            example = "Seven Food")
     @Size(min = 3, max = 255)
     private String name;
 
     @Schema(description = "Cnpj of the Restaurant.",
-            example = "11.469.762/0001-58", required = true)
+            example = "11.469.762/0001-58")
     @Size(min = 0, max = 255)
     @CNPJ(message = "CNPJ inválido")
     private String cnpj;

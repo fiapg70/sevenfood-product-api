@@ -19,18 +19,19 @@ import javax.validation.constraints.Size;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
+@Schema(description = "ProductCategoryEntity", requiredProperties = {"id, code"})
+@Tag(name = "ProductCategoryEntity", description = "Model")
 public class ProductCategoryEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",
-            example = "1", required = true)
+            example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
 
     @Schema(description = "name of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"name\" é obrigario")
     @Size(min = 1, max = 255)
     @Column(name = "name", length = 255)

@@ -24,47 +24,49 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
+@Schema(description = "ProductEntity", requiredProperties = {"id, code, name, price, productCategory, restaurant"})
+@Tag(name = "ProductEntity", description = "Model")
 public class ProductEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",
-            example = "1", required = true)
+            example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
 
     @Schema(description = "name of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"code\" é obrigario")
     @Size(min = 3, max = 255)
     @Column(name = "code", length = 255)
+
     private String code;
 
     @Schema(description = "name of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"name\" é obrigario")
     @Size(min = 1, max = 255)
     @Column(name = "name", length = 255)
     private String name;
 
     @Schema(description = "picture of the Product.",
-            example = "V$", required = false)
+            example = "V$")
     private String pic;
 
     @Schema(description = "description of the Product.",
-            example = "V$", required = false)
+            example = "V$")
     @Size(min = 0, max = 255)
     @Column(name = "description", length = 255)
     private String description;
 
     @Schema(description = "price of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"price\" é obrigario")
     private BigDecimal price;
 
     @Schema(description = "Restaurant of the User.",
-            example = "1", required = true, ref = "User")
+            example = "1", ref = "User")
     @NotNull
     @ManyToOne
     @JoinColumn(name = "product_category_id", unique = true)
@@ -72,7 +74,7 @@ public class ProductEntity extends AuditDomain {
     private ProductCategoryEntity productCategory;
 
     @Schema(description = "Restaurant of the User.",
-            example = "1", required = true, ref = "User")
+            example = "1", ref = "User")
     @NotNull
     @OneToOne
     @JoinColumn(name = "restaurant_id", unique = true)

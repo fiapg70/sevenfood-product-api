@@ -14,20 +14,21 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product object")
+@Schema(description = "RestaurantResponse", requiredProperties = {"id, code, cnpj"})
+@Tag(name = "RestaurantResponse", description = "Model")
 public class RestaurantResponse implements Serializable {
 
     @Schema(description = "Unique identifier of the Driver.",
-            example = "1", required = true)
+            example = "1")
     private Long id;
 
     @Schema(description = "Name of the Product.",
-            example = "Vicente", required = true)
+            example = "Vicente")
     @Size(min = 3, max = 255)
     private String name;
 
     @Schema(description = "Description of the Product.",
-            example = "Vicente", required = true)
+            example = "Vicente")
     @Size(min = 0, max = 255)
     private String cnpj;
 

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class ProductCategoryRepositoryAdapterTest {
+class ProductCategoryRepositoryAdapterTest {
 
     @InjectMocks
     ProductCategoryRepositoryAdapter productCategoryRepositoryAdapter;
@@ -63,14 +63,14 @@ public class ProductCategoryRepositoryAdapterTest {
     }
 
     @Test
-    public void should_find_no_clients_if_repository_is_empty() {
+    void should_find_no_clients_if_repository_is_empty() {
         Iterable<ProductCategoryEntity> seeds = productCategoryRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
     @Test
-    public void should_store_a_product_category() {
+    void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
         ProductCategoryEntity cocaCola = ProductCategoryEntity.builder()
                 .name(cocaColaBeverage)
@@ -166,6 +166,6 @@ public class ProductCategoryRepositoryAdapterTest {
         List<ProductCategoryEntity> clients = new ArrayList<>();
         allProductCategorys.forEachRemaining(c -> clients.add(c));
 
-        assertThat(allProductCategorys);
+        assertNotNull(allProductCategorys);
     }
 }

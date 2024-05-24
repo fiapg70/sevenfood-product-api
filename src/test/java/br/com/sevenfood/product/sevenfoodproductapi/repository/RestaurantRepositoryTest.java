@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -20,10 +18,9 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
-@ExtendWith(MockitoExtension.class)
 @DataJpaTest
 @ImportAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -36,49 +33,48 @@ class RestaurantRepositoryTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-
-    private RestaurantEntity getRestaurant() {
-        return RestaurantEntity.builder()
-                .name("Seven Food")
-                .cnpj("02.365.347/0001-63")
-                .build();
-    }
+    private RestaurantEntity restaurantEntity;
 
     @BeforeEach
     public void setUp() {
-        restaurantRepository.findAll();
-        restaurantRepository.save(getRestaurant());
+        restaurantRepository.deleteAll();
+
+        restaurantEntity = RestaurantEntity.builder()
+                .name("Seven Food")
+                .cnpj("02.365.347/0001-63")
+                .build();
+        restaurantEntity = restaurantRepository.save(restaurantEntity);
     }
 
     @Test
-    void should_find_no_clients_if_repository_is_empty() {
+    void should_find_no_restaurants_if_repository_is_empty() {
+        restaurantRepository.deleteAll();
         Iterable<RestaurantEntity> seeds = restaurantRepository.findAll();
-        seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
     @Test
-    void should_store_a_product_category() {
+    void should_store_a_restaurant() {
         String nomeFilial = "Seven Food Filial";
         Optional<RestaurantEntity> restaurant = restaurantRepository.findByName(nomeFilial);
-        Optional<RestaurantEntity> restaurantResponse = null;
-        if (!restaurant.isPresent()) {
 
+        if (!restaurant.isPresent()) {
             RestaurantEntity restaurantFilial = RestaurantEntity.builder()
                     .name(nomeFilial)
                     .cnpj("93.563.658/0001-92")
                     .build();
 
-            RestaurantEntity save = restaurantRepository.save(restaurantFilial);
-            restaurantResponse = restaurantRepository.findByName(nomeFilial);
-        }
+            RestaurantEntity savedRestaurant = restaurantRepository.save(restaurantFilial);
+            Optional<RestaurantEntity> restaurantResponse = restaurantRepository.findByName(nomeFilial);
 
-        RestaurantEntity restaurant1 = restaurantResponse.get();
-        assertThat(restaurant1).hasFieldOrPropertyWithValue("name", nomeFilial);
+            RestaurantEntity restaurant1 = restaurantResponse.orElse(null);
+            assertThat(restaurant1).isNotNull();
+            assertThat(restaurant1).hasFieldOrPropertyWithValue("name", nomeFilial);
+        }
     }
 
     @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
+    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
         RestaurantEntity restaurant = createInvalidRestaurant();
 
         ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
@@ -88,80 +84,54 @@ class RestaurantRepositoryTest {
         String expectedMessage = "tamanho deve ser entre 1 e 255";
         String actualMessage = exception.getMessage();
 
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
+        log.info("Actual Exception Message: {}", actualMessage);
 
-        assertNotNull(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
+        assertThat(actualMessage).contains(expectedMessage);
     }
 
     private RestaurantEntity createInvalidRestaurant() {
-        RestaurantEntity restaurant = new RestaurantEntity();
-        // Configurar o restaurant com valores inválidos
-        // Exemplo: valores inválidos que podem causar uma ConstraintViolationException
-        restaurant.setName(""); // Nome vazio pode causar uma violação
-        return restaurant;
+        return RestaurantEntity.builder()
+                .name("") // Nome vazio pode causar uma violação
+                .build();
     }
 
     @Test
-    void should_found_null_Restaurant() {
-        RestaurantEntity restaurant = null;
-
-        Optional<RestaurantEntity> fromDb = restaurantRepository.findById(99l);
-        if (fromDb.isPresent()) {
-            restaurant = fromDb.get();
-        }
-        assertThat(restaurant).isNull();
+    void should_find_null_restaurant() {
+        Optional<RestaurantEntity> fromDb = restaurantRepository.findById(99L);
+        assertThat(fromDb).isEmpty();
     }
 
     @Test
     void whenFindById_thenReturnRestaurant() {
-        Optional<RestaurantEntity> restaurant = restaurantRepository.findById(1l);
-        if (restaurant.isPresent()) {
-            RestaurantEntity restaurantResult = restaurant.get();
-            assertThat(restaurantResult).hasFieldOrPropertyWithValue("name", "Seven Food");
-        }
+        Optional<RestaurantEntity> restaurant = restaurantRepository.findById(restaurantEntity.getId());
+        assertThat(restaurant).isPresent();
+        restaurant.ifPresent(restaurantResult -> assertThat(restaurantResult).hasFieldOrPropertyWithValue("name", "Seven Food"));
     }
 
     @Test
     void whenInvalidId_thenReturnNull() {
-        RestaurantEntity fromDb = restaurantRepository.findById(-11l).orElse(null);
+        RestaurantEntity fromDb = restaurantRepository.findById(-11L).orElse(null);
         assertThat(fromDb).isNull();
     }
 
     @Test
     void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
-        RestaurantEntity restaurant = null;
-        RestaurantEntity restaurant1 = null;
-        RestaurantEntity restaurant2 = null;
+        RestaurantEntity restaurant1 = RestaurantEntity.builder()
+                .name("Seven Food - MG")
+                .cnpj("12.345.678/0001-90")
+                .build();
+        RestaurantEntity restaurant2 = RestaurantEntity.builder()
+                .name("Seven Food - SC")
+                .cnpj("23.456.789/0001-01")
+                .build();
 
-        Optional<RestaurantEntity> restaurantResult = restaurantRepository.findById(1l);
-        if (restaurantResult.isPresent()) {
+        restaurantRepository.saveAll(Arrays.asList(restaurant1, restaurant2));
 
-            RestaurantEntity anaFurtadoCorreia = RestaurantEntity.builder()
-                    .name("Seven Food")
-                    .cnpj("02.365.347/0001-63")
-                    .build();
-            restaurant = restaurantRepository.save(anaFurtadoCorreia);
+        Iterable<RestaurantEntity> allRestaurants = restaurantRepository.findAll();
+        List<RestaurantEntity> restaurantList = new ArrayList<>();
+        allRestaurants.forEach(restaurantList::add);
 
-            RestaurantEntity alessandroRezendeFurtado = RestaurantEntity.builder()
-                    .name("Seven Food - MG")
-                    .cnpj("02.365.347/0001-63")
-                    .build();
-            restaurant1 = restaurantRepository.save(anaFurtadoCorreia);
-
-            RestaurantEntity robertaGimenesMoura = RestaurantEntity.builder()
-                    .name("Seven Food - SC")
-                    .cnpj("02.365.347/0001-63")
-                    .build();
-            restaurant2 = restaurantRepository.save(anaFurtadoCorreia);
-
-        }
-
-        Iterator<RestaurantEntity> allRestaurants = restaurantRepository.findAll().iterator();
-        List<RestaurantEntity> clients = new ArrayList<>();
-        allRestaurants.forEachRemaining(c -> clients.add(c));
-
-        assertThat(allRestaurants);
+        assertThat(restaurantList).hasSize(3).extracting(RestaurantEntity::getName)
+                .containsExactlyInAnyOrder("Seven Food", "Seven Food - MG", "Seven Food - SC");
     }
 }

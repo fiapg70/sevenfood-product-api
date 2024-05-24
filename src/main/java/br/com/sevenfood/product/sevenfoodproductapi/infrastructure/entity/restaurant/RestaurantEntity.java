@@ -20,25 +20,26 @@ import javax.validation.constraints.Size;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
+@Schema(description = "RestaurantEntity", requiredProperties = {"id, code, cnpj"})
+@Tag(name = "RestaurantEntity", description = "Model")
 public class RestaurantEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",
-            example = "1", required = true)
+            example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
 
     @Schema(description = "name of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"name\" é obrigario")
     @Size(min = 1, max = 255)
     @Column(name = "name", length = 255)
     private String name;
 
     @Schema(description = "cnpj of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"cnpj\" é obrigatorio")
     @Size(min = 3, max = 255)
     @Column(name = "cnpj", length = 255, unique = true)

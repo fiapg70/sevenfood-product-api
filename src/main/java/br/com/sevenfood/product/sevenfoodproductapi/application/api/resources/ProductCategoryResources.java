@@ -48,7 +48,6 @@ public class ProductCategoryResources {
             @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-
     public ResponseEntity<ProductCategoryResponse> save(@Valid @RequestBody ProductCategoryRequest request) {
         try {
             log.info("Chegada" + request);

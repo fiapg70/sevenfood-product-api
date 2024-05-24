@@ -14,7 +14,8 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ProductCategoryRequest", requiredProperties = {"id, name"})
+@Schema(description = "ProductCategoryRequest", requiredProperties = {"id", "name"})
+@Tag(name = "ProductCategoryRequest", description = "Model")
 public class ProductCategoryRequest implements Serializable {
 
     @Schema(description = "Unique identifier of the Driver.",

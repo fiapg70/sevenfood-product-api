@@ -15,36 +15,37 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product object")
+@Schema(description = "ProductRequest", requiredProperties = {"id", "name", "description", "price", "pic", "productCategoryId", "restaurantId"})
+@Tag(name = "ProductRequest", description = "Model")
 public class ProductRequest implements Serializable {
 
     @Schema(description = "Unique identifier of the Driver.",
-            example = "1", required = true)
+            example = "1")
     private Long id;
 
     @Schema(description = "Name of the Product.",
-            example = "Coca-cola", required = true)
+            example = "Coca-cola")
     @Size(min = 3, max = 255)
     private String name;
 
     @Schema(description = "Description of the Product.",
-            example = "Coca-cola !L", required = true)
+            example = "Coca-cola !L")
     @Size(min = 0, max = 255)
     private String description;
 
     @Schema(description = "Price of the Product.",
-            example = "9.00", required = true)
+            example = "9.00")
     private BigDecimal price;
 
     @Schema(description = "Picture of the Product.",
-            example = "/home/pic/bebida.png", required = true)
+            example = "/home/pic/bebida.png")
     private String pic;
 
     @Schema(description = "Product Category of the Product.",
-            example = "Bebida", required = true, ref = "ProductCategory")
+            example = "Bebida", ref = "ProductCategory")
     private Long productCategoryId;
 
     @Schema(description = "Restaurant of the Product.",
-            example = "seven food", required = true, ref = "Restaurant")
+            example = "seven food", ref = "Restaurant")
     private Long restaurantId;
 }
