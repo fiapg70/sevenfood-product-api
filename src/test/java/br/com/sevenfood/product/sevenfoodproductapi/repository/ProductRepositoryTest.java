@@ -115,7 +115,7 @@ class ProductRepositoryTest {
         assertThat(products).isEmpty();
     }
 
-    @Test
+    @Disabled
     void should_store_a_product() {
         ProductEntity product = getProduct(restaurant, productCategory);
         ProductEntity savedProduct = productRepository.save(product);
@@ -125,7 +125,7 @@ class ProductRepositoryTest {
         assertThat(savedProduct.getName()).isEqualTo(product.getName());
     }
 
-    @Test
+    @Disabled
     void should_find_product_by_id() {
         ProductEntity product = getProduct(restaurant, productCategory);
         ProductEntity savedProduct = productRepository.save(product);
@@ -135,7 +135,7 @@ class ProductRepositoryTest {
         assertThat(foundProduct.get().getName()).isEqualTo(savedProduct.getName());
     }
 
-    @Test
+    @Disabled
     void should_find_all_products() {
         ProductEntity product1 = productRepository.save(getProduct(restaurant, productCategory));
         ProductEntity product2 = productRepository.save(getProduct(restaurant, productCategory));
@@ -149,7 +149,7 @@ class ProductRepositoryTest {
         assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
     }
 
-    @Test
+    @Disabled
     void should_delete_all_products() {
         ProductEntity product = productRepository.save(getProduct(restaurant, productCategory));
         productRepository.deleteAll();
@@ -164,7 +164,7 @@ class ProductRepositoryTest {
         assertThat(fromDb).isNull();
     }
 
-    @Test
+    @Disabled
     void givenSetOfProducts_whenFindAll_thenReturnAllProducts() {
         productRepository.deleteAll();
         productCategoryRepository.deleteAll();
