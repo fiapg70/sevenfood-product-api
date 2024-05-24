@@ -5,12 +5,13 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.domain
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "tb_product_category")
@@ -18,18 +19,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product object")
+@Schema(description = "ProductCategoryEntity", requiredProperties = {"id, code"})
+@Tag(name = "ProductCategoryEntity", description = "Model")
 public class ProductCategoryEntity extends AuditDomain {
 
     @Schema(description = "Unique identifier of the Product.",
-            example = "1", required = true)
+            example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
 
     @Schema(description = "name of the Product.",
-            example = "V$", required = true)
+            example = "V$")
     @NotNull(message = "o campo \"name\" é obrigario")
     @Size(min = 1, max = 255)
     @Column(name = "name", length = 255)

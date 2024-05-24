@@ -1,5 +1,6 @@
 package br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Tag(name = "Product object")
+@Schema(description = "LoginRequest", requiredProperties = {"username", "password"})
+@Tag(name = "LoginRequest", description = "Model")
 public class LoginRequest {
     private String username;
     private String password;

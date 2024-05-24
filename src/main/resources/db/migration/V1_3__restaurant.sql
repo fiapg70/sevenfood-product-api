@@ -10,4 +10,4 @@ create table tb_restaurant (
     primary key (id)
 );
 
-CREATE UNIQUE INDEX index_restaurant_cnpj ON tb_restaurant(cnpj);
+--CREATE UNIQUE INDEX index_restaurant_cnpj ON tb_restaurant(cnpj);
