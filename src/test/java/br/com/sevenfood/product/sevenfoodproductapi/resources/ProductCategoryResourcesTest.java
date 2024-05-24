@@ -5,7 +5,6 @@ import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategory
 import br.com.sevenfood.product.sevenfoodproductapi.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;

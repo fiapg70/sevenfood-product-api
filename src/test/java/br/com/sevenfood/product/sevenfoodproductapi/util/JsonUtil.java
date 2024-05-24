@@ -1,15 +1,16 @@
 package br.com.sevenfood.product.sevenfoodproductapi.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.google.gson.Gson;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtil {
 
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     public static String getJson(Object object) {
-        Gson gson = new Gson();
-        return gson.toJson(object);
+        try {
+            return mapper.writeValueAsString(object);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
