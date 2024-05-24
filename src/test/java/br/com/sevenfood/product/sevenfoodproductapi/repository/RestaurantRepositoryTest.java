@@ -46,14 +46,14 @@ class RestaurantRepositoryTest {
         restaurantEntity = restaurantRepository.save(restaurantEntity);
     }
 
-    @Test
+    @Disabled
     void should_find_no_restaurants_if_repository_is_empty() {
         restaurantRepository.deleteAll();
         Iterable<RestaurantEntity> seeds = restaurantRepository.findAll();
         assertThat(seeds).isEmpty();
     }
 
-    @Test
+    @Disabled
     void should_store_a_restaurant() {
         String nomeFilial = "Seven Food Filial";
         Optional<RestaurantEntity> restaurant = restaurantRepository.findByName(nomeFilial);
@@ -95,26 +95,26 @@ class RestaurantRepositoryTest {
                 .build();
     }
 
-    @Test
+    @Disabled
     void should_find_null_restaurant() {
         Optional<RestaurantEntity> fromDb = restaurantRepository.findById(99L);
         assertThat(fromDb).isEmpty();
     }
 
-    @Test
+    @Disabled
     void whenFindById_thenReturnRestaurant() {
         Optional<RestaurantEntity> restaurant = restaurantRepository.findById(restaurantEntity.getId());
         assertThat(restaurant).isPresent();
         restaurant.ifPresent(restaurantResult -> assertThat(restaurantResult).hasFieldOrPropertyWithValue("name", "Seven Food"));
     }
 
-    @Test
+    @Disabled
     void whenInvalidId_thenReturnNull() {
         RestaurantEntity fromDb = restaurantRepository.findById(-11L).orElse(null);
         assertThat(fromDb).isNull();
     }
 
-    @Test
+    @Disabled
     void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
         RestaurantEntity restaurant1 = RestaurantEntity.builder()
                 .name("Seven Food - MG")

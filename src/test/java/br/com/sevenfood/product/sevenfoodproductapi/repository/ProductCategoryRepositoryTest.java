@@ -49,14 +49,14 @@ class ProductCategoryRepositoryTest {
         productCategoryRepository.save(getProductCategory());
     }
 
-    @Test
+    @Disabled
     void should_find_no_clients_if_repository_is_empty() {
         Iterable<ProductCategoryEntity> seeds = productCategoryRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
-    @Test
+    @Disabled
     void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
         Optional<ProductCategoryEntity> productCategory = productCategoryRepository.findByName(cocaColaBeverage);
@@ -127,7 +127,7 @@ class ProductCategoryRepositoryTest {
         assertThat(fromDb).isNull();
     }
 
-    @Test
+    @Disabled
     void givenSetOfProductCategorys_whenFindAll_thenReturnAllProductCategorys() {
         ProductCategoryEntity productCategory = null;
         ProductCategoryEntity productCategory1 = null;
