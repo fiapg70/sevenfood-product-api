@@ -1,7 +1,10 @@
 package br.com.sevenfood.product.sevenfoodproductapi.repository;
 
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
+import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -30,41 +33,70 @@ class RestaurantRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    private RestaurantEntity restaurantEntity;
+
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
+
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    private RestaurantEntity restaurantEntity;
+    @Autowired
+    private ProductRepository productRepository;
+
+    Faker faker = new Faker();
 
     @BeforeEach
     public void setUp() {
+        productRepository.deleteAll();
         restaurantRepository.deleteAll();
+        productCategoryRepository.deleteAll();
 
         restaurantEntity = RestaurantEntity.builder()
-                .name("Seven Food")
-                .cnpj("02.365.347/0001-63")
+                .name(faker.company().name())
+                .cnpj(generateUniqueCNPJ())
                 .build();
         restaurantEntity = restaurantRepository.save(restaurantEntity);
     }
 
-    @Disabled
-    void should_find_no_restaurants_if_repository_is_empty() {
+    @Test
+    void should_find_no_restaurants_if_repository_is_empty() { //TODO - Refatorar
+        productRepository.deleteAll();
+        restaurantRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+
+        restaurantEntity = RestaurantEntity.builder()
+                .name(faker.company().name())
+                .cnpj(generateUniqueCNPJ())
+                .build();
+        restaurantEntity = restaurantRepository.save(restaurantEntity);
+
         restaurantRepository.deleteAll();
         Iterable<RestaurantEntity> seeds = restaurantRepository.findAll();
         assertThat(seeds).isEmpty();
     }
 
-    @Disabled
+    private String generateUniqueCNPJ() {
+        return String.format("%02d.%03d.%03d/%04d-%02d",
+                faker.number().numberBetween(10, 99),
+                faker.number().numberBetween(100, 999),
+                faker.number().numberBetween(100, 999),
+                faker.number().numberBetween(1000, 9999),
+                faker.number().numberBetween(10, 99));
+    }
+
+    @Test
     void should_store_a_restaurant() {
-        String nomeFilial = "Seven Food Filial";
+        String nomeFilial = faker.company().name();
         Optional<RestaurantEntity> restaurant = restaurantRepository.findByName(nomeFilial);
 
         if (!restaurant.isPresent()) {
-            RestaurantEntity restaurantFilial = RestaurantEntity.builder()
+            RestaurantEntity restaurant2 = RestaurantEntity.builder()
                     .name(nomeFilial)
-                    .cnpj("93.563.658/0001-92")
+                    .cnpj(generateUniqueCNPJ())
                     .build();
 
-            RestaurantEntity savedRestaurant = restaurantRepository.save(restaurantFilial);
+            RestaurantEntity savedRestaurant = restaurantRepository.save(restaurant2);
             Optional<RestaurantEntity> restaurantResponse = restaurantRepository.findByName(nomeFilial);
 
             RestaurantEntity restaurant1 = restaurantResponse.orElse(null);
@@ -95,34 +127,58 @@ class RestaurantRepositoryTest {
                 .build();
     }
 
-    @Disabled
+    @Test
     void should_find_null_restaurant() {
         Optional<RestaurantEntity> fromDb = restaurantRepository.findById(99L);
         assertThat(fromDb).isEmpty();
     }
 
-    @Disabled
+    @Test
     void whenFindById_thenReturnRestaurant() {
+
+        productRepository.deleteAll();
+        restaurantRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+
+        String nameCompany = faker.company().name();
+        restaurantEntity = RestaurantEntity.builder()
+                .name(nameCompany)
+                .cnpj(generateUniqueCNPJ())
+                .build();
+
+        restaurantEntity = restaurantRepository.save(restaurantEntity);
+
         Optional<RestaurantEntity> restaurant = restaurantRepository.findById(restaurantEntity.getId());
         assertThat(restaurant).isPresent();
-        restaurant.ifPresent(restaurantResult -> assertThat(restaurantResult).hasFieldOrPropertyWithValue("name", "Seven Food"));
+        restaurant.ifPresent(restaurantResult -> assertThat(restaurantResult).hasFieldOrPropertyWithValue("name", nameCompany));
     }
 
-    @Disabled
+    @Test
     void whenInvalidId_thenReturnNull() {
         RestaurantEntity fromDb = restaurantRepository.findById(-11L).orElse(null);
         assertThat(fromDb).isNull();
     }
 
-    @Disabled
+    @Test
     void givenSetOfRestaurants_whenFindAll_thenReturnAllRestaurants() {
+        productRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+        restaurantRepository.deleteAll();
+
+        String nameCompany1 = faker.company().name();
+        String nameCompany2 = faker.company().name();
+
+        String cnpj1 = generateUniqueCNPJ();
+        String cnpj2 = generateUniqueCNPJ();
+
         RestaurantEntity restaurant1 = RestaurantEntity.builder()
-                .name("Seven Food - MG")
-                .cnpj("12.345.678/0001-90")
+                .name(nameCompany1)
+                .cnpj(cnpj1)
                 .build();
+
         RestaurantEntity restaurant2 = RestaurantEntity.builder()
-                .name("Seven Food - SC")
-                .cnpj("23.456.789/0001-01")
+                .name(nameCompany2)
+                .cnpj(cnpj2)
                 .build();
 
         restaurantRepository.saveAll(Arrays.asList(restaurant1, restaurant2));
@@ -131,7 +187,7 @@ class RestaurantRepositoryTest {
         List<RestaurantEntity> restaurantList = new ArrayList<>();
         allRestaurants.forEach(restaurantList::add);
 
-        assertThat(restaurantList).hasSize(3).extracting(RestaurantEntity::getName)
-                .containsExactlyInAnyOrder("Seven Food", "Seven Food - MG", "Seven Food - SC");
+        assertThat(restaurantList).hasSize(2).extracting(RestaurantEntity::getName)
+                .containsExactlyInAnyOrder(nameCompany1, nameCompany2);
     }
 }

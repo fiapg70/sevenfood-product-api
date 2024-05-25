@@ -2,7 +2,8 @@ package br.com.sevenfood.product.sevenfoodproductapi.repository;
 
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
-import jakarta.transaction.Transactional;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -35,6 +36,12 @@ class ProductCategoryRepositoryTest {
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
 
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
     private ProductCategoryEntity getProductCategory() {
         return ProductCategoryEntity.builder()
                 .id(1l)
@@ -45,18 +52,28 @@ class ProductCategoryRepositoryTest {
 
     @BeforeEach
     public void setUp() {
+        productRepository.deleteAll();
+        restaurantRepository.deleteAll();
         productCategoryRepository.deleteAll();
+
         productCategoryRepository.save(getProductCategory());
     }
 
-    @Disabled
+    @Test
     void should_find_no_clients_if_repository_is_empty() {
-        Iterable<ProductCategoryEntity> seeds = productCategoryRepository.findAll();
+        productRepository.deleteAll();
+        restaurantRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+
+        productCategoryRepository.save(getProductCategory());
+
+        List<ProductCategoryEntity> seeds = new ArrayList<>();
+        seeds = productCategoryRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
-    @Disabled
+    @Test
     void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
         Optional<ProductCategoryEntity> productCategory = productCategoryRepository.findByName(cocaColaBeverage);
@@ -127,7 +144,7 @@ class ProductCategoryRepositoryTest {
         assertThat(fromDb).isNull();
     }
 
-    @Disabled
+    @Test
     void givenSetOfProductCategorys_whenFindAll_thenReturnAllProductCategorys() {
         ProductCategoryEntity productCategory = null;
         ProductCategoryEntity productCategory1 = null;
