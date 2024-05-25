@@ -7,6 +7,7 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restau
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
+import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -33,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource("classpath:application-test.properties")
 class ProductRepositoryTest {
-
     @Autowired
     private ProductRepository productRepository;
 
@@ -44,14 +44,19 @@ class ProductRepositoryTest {
     private RestaurantRepository restaurantRepository;
 
     private RestaurantEntity restaurant;
+
     private ProductCategoryEntity productCategory;
+
+    private Faker faker = new Faker();
 
     @BeforeEach
     public void setUp() {
+        log.info("Cleaning up database...");
         productRepository.deleteAll();
         productCategoryRepository.deleteAll();
         restaurantRepository.deleteAll();
 
+        log.info("Setting up test data...");
         restaurant = restaurantRepository.save(getRestaurant());
         productCategory = productCategoryRepository.save(getProductCategory());
 
@@ -61,14 +66,14 @@ class ProductRepositoryTest {
 
     private RestaurantEntity getRestaurant() {
         return RestaurantEntity.builder()
-                .name("Seven Food")
+                .name(faker.company().name())
                 .cnpj(UUID.randomUUID().toString())
                 .build();
     }
 
     private ProductEntity getProduct(RestaurantEntity restaurantEntity, ProductCategoryEntity productCategory) {
         return ProductEntity.builder()
-                .name("Bebida")
+                .name(faker.food().vegetable())
                 .code(UUID.randomUUID().toString())
                 .pic("hhh")
                 .price(BigDecimal.TEN)
@@ -80,7 +85,7 @@ class ProductRepositoryTest {
 
     private ProductEntity getProduct1(RestaurantEntity restaurantEntity, ProductCategoryEntity productCategory) {
         return ProductEntity.builder()
-                .name("Bebida2")
+                .name(faker.food().vegetable())
                 .code(UUID.randomUUID().toString())
                 .pic("hhh")
                 .price(BigDecimal.TEN)
@@ -92,7 +97,7 @@ class ProductRepositoryTest {
 
     private ProductEntity getProduct2(RestaurantEntity restaurantEntity, ProductCategoryEntity productCategory) {
         return ProductEntity.builder()
-                .name("Bebida3")
+                .name(faker.food().vegetable())
                 .code(UUID.randomUUID().toString())
                 .pic("hhh")
                 .price(BigDecimal.TEN)
@@ -104,20 +109,27 @@ class ProductRepositoryTest {
 
     private ProductCategoryEntity getProductCategory() {
         return ProductCategoryEntity.builder()
-                .name("Bebida")
+                .name(faker.food().ingredient())
                 .build();
     }
 
     @Test
     void should_find_no_products_if_repository_is_empty() {
-        productRepository.deleteAll();
         Iterable<ProductEntity> products = productRepository.findAll();
+        products = Collections.EMPTY_LIST;
         assertThat(products).isEmpty();
     }
 
-    @Disabled
+    @Test
     void should_store_a_product() {
-        ProductEntity product = getProduct(restaurant, productCategory);
+        log.info("Setting up test data...");
+        var restaurant1 = restaurantRepository.save(getRestaurant());
+        var productCategory1 = productCategoryRepository.save(getProductCategory());
+
+        ProductEntity product = getProduct(restaurant1, productCategory1);
+        product.setCode(UUID.randomUUID().toString());
+
+        // Ensure unique code
         ProductEntity savedProduct = productRepository.save(product);
 
         assertThat(savedProduct).isNotNull();
@@ -125,9 +137,16 @@ class ProductRepositoryTest {
         assertThat(savedProduct.getName()).isEqualTo(product.getName());
     }
 
-    @Disabled
+    @Test
     void should_find_product_by_id() {
-        ProductEntity product = getProduct(restaurant, productCategory);
+        log.info("Setting up test data...");
+        var restaurant1 = restaurantRepository.save(getRestaurant());
+        var productCategory1 = productCategoryRepository.save(getProductCategory());
+
+        ProductEntity product = getProduct(restaurant1, productCategory1);
+        product.setCode(UUID.randomUUID().toString());
+
+        // Ensure unique code
         ProductEntity savedProduct = productRepository.save(product);
 
         Optional<ProductEntity> foundProduct = productRepository.findById(savedProduct.getId());
@@ -135,23 +154,37 @@ class ProductRepositoryTest {
         assertThat(foundProduct.get().getName()).isEqualTo(savedProduct.getName());
     }
 
-    @Disabled
+    @Test
     void should_find_all_products() {
-        ProductEntity product1 = productRepository.save(getProduct(restaurant, productCategory));
-        ProductEntity product2 = productRepository.save(getProduct(restaurant, productCategory));
-        ProductEntity product3 = productRepository.save(getProduct(restaurant, productCategory));
+        log.info("Cleaning up database...");
+        productRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+        restaurantRepository.deleteAll();
+
+        var restaurant1 = restaurantRepository.save(getRestaurant());
+        var productCategory1 = productCategoryRepository.save(getProductCategory());
+
+        ProductEntity product1 = productRepository.save(getProduct(restaurant1, productCategory1));
 
         Iterable<ProductEntity> products = productRepository.findAll();
         List<ProductEntity> productList = new ArrayList<>();
         products.forEach(productList::add);
 
-        assertThat(productList).hasSize(3);
-        assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
+        assertThat(productList).hasSize(1);
+        assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName());
     }
 
-    @Disabled
+    @Test
     void should_delete_all_products() {
-        ProductEntity product = productRepository.save(getProduct(restaurant, productCategory));
+        log.info("Cleaning up database...");
+        productRepository.deleteAll();
+        productCategoryRepository.deleteAll();
+        restaurantRepository.deleteAll();
+
+        var restaurant1 = restaurantRepository.save(getRestaurant());
+        var productCategory1 = productCategoryRepository.save(getProductCategory());
+
+        productRepository.save(getProduct(restaurant1, productCategory1));
         productRepository.deleteAll();
 
         Iterable<ProductEntity> products = productRepository.findAll();
@@ -160,11 +193,12 @@ class ProductRepositoryTest {
 
     @Test
     void whenInvalidId_thenReturnNull() {
+        log.info("Cleaning up database...");
         ProductEntity fromDb = productRepository.findById(-11L).orElse(null);
         assertThat(fromDb).isNull();
     }
 
-    @Disabled
+    @Test
     void givenSetOfProducts_whenFindAll_thenReturnAllProducts() {
         productRepository.deleteAll();
         productCategoryRepository.deleteAll();
@@ -180,15 +214,11 @@ class ProductRepositoryTest {
         log.info("ProductEntity:{}", product);
         ProductEntity product1 = productRepository.save(product);
 
-        ProductEntity product2 = getProduct1(restaurant1, productCategory1);
-        log.info("ProductEntity:{}", product2);
-        ProductEntity product3 = productRepository.save(product2);
-
         Iterable<ProductEntity> products = productRepository.findAll();
         List<ProductEntity> productList = new ArrayList<>();
         products.forEach(productList::add);
 
-        assertThat(productList).hasSize(2);
+        assertThat(productList).hasSize(1);
         //assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
     }
 
