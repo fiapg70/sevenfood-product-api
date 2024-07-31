@@ -79,7 +79,7 @@ public class ProductResources {
             var product = productApiMapper.fromRquest(request);
             Product updated = updateProductPort.update(id, product);
             if (updated == null) {
-                throw new ResourceFoundException("\"Produto não encontroado ao atualizar");
+                throw new ResourceFoundException("Produto não encontroado ao atualizar");
             }
 
             ProductResponse productResponse = productApiMapper.fromEntidy(updated);

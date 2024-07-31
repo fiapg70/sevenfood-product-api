@@ -1,5 +1,9 @@
 package br.com.sevenfood.product.sevenfoodproductapi.api;
 
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductRequest;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.RestaurantRequest;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.RestaurantApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
@@ -12,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -20,9 +25,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,6 +58,9 @@ class RestaurantResourcesTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Mock
+    private RestaurantApiMapper productApiMapper;
 
     private Restaurant restaurant;
 
@@ -109,6 +122,39 @@ class RestaurantResourcesTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty());
     }
 
+    @Test
+    void create_isNull() throws Exception {
+        String create = JsonUtil.getJson(new Restaurant());
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                        .post("/v1/restaurants")
+                        .content(create)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        assertThat(responseContent).isEmpty();
+    }
+
+    @Test
+    void testSave_Exception() throws Exception {
+        RestaurantRequest restaurantRequest = new RestaurantRequest();
+        String create = JsonUtil.getJson(restaurantRequest);
+
+        when(productApiMapper.fromRquest(restaurantRequest)).thenThrow(new RuntimeException("Restaurante não encontroado ao atualizar"));
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                        .post("/v1/restaurants")
+                        .content(create)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        assertThat(responseContent).isEmpty();
+    }
 
     @Test
     void update() throws Exception {
@@ -128,9 +174,68 @@ class RestaurantResourcesTest {
     }
 
     @Test
-    void deleteEmployeeAPI() throws Exception
-    {
+    void update_isNull() throws Exception {
+        String update = JsonUtil.getJson(new Restaurant());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                        .put("/v1/products/{id}", 99L)
+                        .content(update)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        assertThat(responseContent).isEmpty();
+    }
+
+    @Test
+    void testUpdate_Exception() throws Exception {
+        RestaurantRequest product = new RestaurantRequest();
+        String create = JsonUtil.getJson(product);
+
+        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontroado ao atualizar"));
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                        .put("/v1/products/{id}", 99L)
+                        .content(create)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        assertThat(responseContent).isEmpty();
+    }
+
+    @Test
+    void deleteRestaurantAPI() throws Exception {
         mockMvc.perform( MockMvcRequestBuilders.delete("/v1/restaurants/{id}", 1) )
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void findById_productIsNull() throws Exception {
+        MvcResult result = mockMvc.perform(get("/v1/restaurants/{id}", 99L))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        assertThat(responseContent).isEmpty();
+    }
+
+    @Test
+    void testById_Exception() throws Exception {
+        RestaurantRequest restaurantRequest = new RestaurantRequest();
+        when(productApiMapper.fromRquest(restaurantRequest)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por id"));
+
+        MvcResult result = mockMvc.perform(get("/v1/restaurants/{id}", 99L))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        assertThat(responseContent).isEmpty();
     }
 }

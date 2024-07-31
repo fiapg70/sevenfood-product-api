@@ -79,7 +79,7 @@ public class RestaurantResources {
             var restaurant = restaurantApiMapper.fromRquest(request);
             Restaurant updated = updateRestaurantPort.update(id, restaurant);
             if (updated == null) {
-                throw new ResourceFoundException("\"Produto não encontroado ao atualizar");
+                throw new ResourceFoundException("Restaurante não encontroado ao atualizar");
             }
 
             RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntidy(updated);

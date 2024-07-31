@@ -1,5 +1,6 @@
 package br.com.sevenfood.product.sevenfoodproductapi.application.database.repository;
 
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.RestaurantMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.exception.CNPJFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
@@ -30,6 +31,9 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
         }
 
         RestaurantEntity saved = restaurantRepository.save(restaurantEntity);
+        if (saved.getName() == null) {
+            throw new ResourceFoundException("Erro ao salvar produto no repositorio");
+        }
         return restaurantMapper.fromEntityToModel(saved);
     }
 

@@ -12,21 +12,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -122,14 +117,11 @@ public class ProductCategoryResources {
                 throw new ResourceFoundException("Produto não encontrado ao buscar por código");
             }
 
-            if (productCategorySaved != null) {
-                ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntidy(productCategorySaved);
-                return ResponseEntity.ok(productCategoryResponse);
-            }
+            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntidy(productCategorySaved);
+            return ResponseEntity.ok(productCategoryResponse);
 
-            return ResponseEntity.noContent().build();
         } catch (Exception ex) {
-            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findByCode: {}", ex.getMessage());
+            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findOne: {}", ex.getMessage());
             return ResponseEntity.ok().build();
         }
     }

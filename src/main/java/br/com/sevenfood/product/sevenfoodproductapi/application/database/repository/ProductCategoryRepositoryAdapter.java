@@ -1,17 +1,20 @@
 package br.com.sevenfood.product.sevenfoodproductapi.application.database.repository;
 
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductCategoryRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ProductCategoryRepositoryAdapter implements ProductCategoryRepositoryPort {
@@ -21,9 +24,17 @@ public class ProductCategoryRepositoryAdapter implements ProductCategoryReposito
 
     @Override
     public ProductCategory save(ProductCategory productCategory) {
-        ProductCategoryEntity productCategoryEntity = productCategoryMapper.fromModelTpEntity(productCategory);
-        ProductCategoryEntity saved = productCategoryRepository.save(productCategoryEntity);
-        return productCategoryMapper.fromEntityToModel(saved);
+        try {
+            ProductCategoryEntity productCategoryEntity = productCategoryMapper.fromModelTpEntity(productCategory);
+            ProductCategoryEntity saved = productCategoryRepository.save(productCategoryEntity);
+            if (saved.getName() == null) {
+               throw new ResourceFoundException("Erro ao salvar produto no repositorio");
+            }
+            return productCategoryMapper.fromEntityToModel(saved);
+        } catch (Exception e) {
+            log.error("Erro ao salvar produto: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Override
@@ -55,13 +66,11 @@ public class ProductCategoryRepositoryAdapter implements ProductCategoryReposito
     public ProductCategory update(Long id, ProductCategory productCategory) {
         Optional<ProductCategoryEntity> resultById = productCategoryRepository.findById(id);
         if (resultById.isPresent()) {
-
             ProductCategoryEntity productCategoryToChange = resultById.get();
             productCategoryToChange.update(id, productCategory);
 
             return productCategoryMapper.fromEntityToModel(productCategoryRepository.save(productCategoryToChange));
         }
-
         return null;
     }
 }

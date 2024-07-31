@@ -8,6 +8,5 @@ public interface ProductCategoryRepositoryPort {
     boolean remove(Long id);
     ProductCategory findById(Long id);
     List<ProductCategory> findAll();
-
     ProductCategory update(Long id, ProductCategory productCategory);
 }
