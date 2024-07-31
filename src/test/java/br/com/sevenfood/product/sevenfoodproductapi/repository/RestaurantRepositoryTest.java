@@ -47,7 +47,7 @@ class RestaurantRepositoryTest {
     Faker faker = new Faker();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         productRepository.deleteAll();
         restaurantRepository.deleteAll();
         productCategoryRepository.deleteAll();

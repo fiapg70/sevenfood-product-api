@@ -1,9 +1,15 @@
 package br.com.sevenfood.product.sevenfoodproductapi.api;
 
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
+import br.com.sevenfood.product.sevenfoodproductapi.util.CnpjGenerator;
 import br.com.sevenfood.product.sevenfoodproductapi.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +43,14 @@ class RestaurantResourcesTest {
     @Autowired
     private RestaurantService service;
 
+    @Autowired
+    private RestaurantRepository repository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    private Restaurant restaurant;
+
     private Restaurant getRestaurant() {
         return Restaurant.builder()
                 .name("Seven Food - Filial")
@@ -52,11 +66,16 @@ class RestaurantResourcesTest {
                 .build();
     }
 
-    @Disabled
-    void findsTaskById() throws Exception {
-        Long id = 1l;
+    @BeforeEach
+    void setUp() {
+        productRepository.deleteAll();
+        repository.deleteAll();
+        this.restaurant = service.save(getRestaurant());
+    }
 
-        mockMvc.perform(get("/v1/restaurants/{id}", id))
+    @Test
+    void findsTaskById() throws Exception {
+        mockMvc.perform(get("/v1/restaurants/{id}", this.restaurant.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Seven Food - Filial"));
@@ -77,9 +96,11 @@ class RestaurantResourcesTest {
 
     @Test
     void create() throws Exception {
-        String create = JsonUtil.getJson(getRestaurant());
+        Restaurant restaurantToSave = getRestaurant();
+        restaurantToSave.setCnpj(CnpjGenerator.generateCnpj());
+        String create = JsonUtil.getJson(restaurantToSave);
 
-        mockMvc.perform( MockMvcRequestBuilders
+        mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/restaurants")
                         .content(create)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,12 +110,16 @@ class RestaurantResourcesTest {
     }
 
 
-    @Disabled
+    @Test
     void update() throws Exception {
-        String update = JsonUtil.getJson(getRestaurantUpdate());
+        repository.deleteAll();
+        Restaurant savedRestaurant = service.save(getRestaurantUpdate());
+        Long id = savedRestaurant.getId();
+        savedRestaurant.setCnpj(CnpjGenerator.generateCnpj());
+        String update = JsonUtil.getJson(savedRestaurant);
 
-        mockMvc.perform( MockMvcRequestBuilders
-                        .put("/v1/restaurants/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/v1/restaurants/{id}", id)
                         .content(update)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -106,6 +131,6 @@ class RestaurantResourcesTest {
     void deleteEmployeeAPI() throws Exception
     {
         mockMvc.perform( MockMvcRequestBuilders.delete("/v1/restaurants/{id}", 1) )
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 }

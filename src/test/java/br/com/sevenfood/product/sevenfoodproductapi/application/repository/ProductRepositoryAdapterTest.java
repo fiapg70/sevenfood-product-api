@@ -24,13 +24,12 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class ProductRepositoryAdapterTest {
+class ProductRepositoryAdapterTest {
 
     @InjectMocks
     ProductRepositoryAdapter productRepositoryAdapter;
@@ -140,19 +139,19 @@ public class ProductRepositoryAdapterTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void should_find_no_clients_if_repository_is_empty() {
+    void should_find_no_clients_if_repository_is_empty() {
         Iterable<ProductEntity> seeds = productRepository.findAll();
         seeds = Collections.EMPTY_LIST;
         assertThat(seeds).isEmpty();
     }
 
     @Test
-    public void should_store_a_product_category() {
+    void should_store_a_product_category() {
         String cocaColaBeverage = "Coca-Cola";
         ProductEntity cocaCola = ProductEntity.builder()
                 .name(cocaColaBeverage)
@@ -165,7 +164,7 @@ public class ProductRepositoryAdapterTest {
     }
 
     @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
+    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
         ProductEntity product = createInvalidProduct();
 
         ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
@@ -178,7 +177,7 @@ public class ProductRepositoryAdapterTest {
         // Adicionar saída de log para a mensagem da exceção
         log.info("Actual Exception Message:{}", actualMessage);
 
-        assertNotNull(actualMessage.contains(expectedMessage),
+        assertTrue(actualMessage.contains(expectedMessage),
                 "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
@@ -191,7 +190,7 @@ public class ProductRepositoryAdapterTest {
     }
 
     @Test
-    public void should_found_null_Product() {
+    void should_found_null_Product() {
         ProductEntity product = null;
 
         when(productRepository.findById(99l)).thenReturn(Optional.empty());
@@ -204,7 +203,7 @@ public class ProductRepositoryAdapterTest {
     }
 
     @Test
-    public void whenFindById_thenReturnProduct() {
+    void whenFindById_thenReturnProduct() {
         Optional<ProductEntity> product = productRepository.findById(1l);
         if (product.isPresent()) {
             ProductEntity productResult = product.get();
@@ -213,13 +212,13 @@ public class ProductRepositoryAdapterTest {
     }
 
     @Test
-    public void whenInvalidId_thenReturnNull() {
+    void whenInvalidId_thenReturnNull() {
         ProductEntity fromDb = productRepository.findById(-11l).orElse(null);
         assertThat(fromDb).isNull();
     }
 
     @Test
-    public void givenSetOfProducts_whenFindAll_thenReturnAllProducts() {
+    void givenSetOfProducts_whenFindAll_thenReturnAllProducts() {
         ProductEntity product = null;
         ProductEntity product1 = null;
         ProductEntity product2 = null;
@@ -248,6 +247,6 @@ public class ProductRepositoryAdapterTest {
         List<ProductEntity> clients = new ArrayList<>();
         allProducts.forEachRemaining(c -> clients.add(c));
 
-        assertThat(allProducts);
+        assertNotNull(allProducts);
     }
 }

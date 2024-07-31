@@ -19,8 +19,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -51,7 +50,7 @@ class RestaurantRepositoryAdapterTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
@@ -76,7 +75,7 @@ class RestaurantRepositoryAdapterTest {
     }
 
     @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
+    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
         RestaurantEntity pestaurant = createInvalidRestaurant();
 
         ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
@@ -89,7 +88,7 @@ class RestaurantRepositoryAdapterTest {
         // Adicionar saída de log para a mensagem da exceção
         log.info("Actual Exception Message:{}", actualMessage);
 
-        assertNotNull(actualMessage.contains(expectedMessage),
+        assertTrue(actualMessage.contains(expectedMessage),
                 "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
@@ -159,6 +158,6 @@ class RestaurantRepositoryAdapterTest {
         List<RestaurantEntity> clients = new ArrayList<>();
         allRestaurants.forEachRemaining(c -> clients.add(c));
 
-        assertThat(allRestaurants);
+        assertNotNull(allRestaurants);
     }
 }

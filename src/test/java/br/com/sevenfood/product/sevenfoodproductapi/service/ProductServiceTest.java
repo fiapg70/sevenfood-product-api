@@ -148,7 +148,7 @@ class ProductServiceTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockitoAnnotations.initMocks(this);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
@@ -216,7 +216,7 @@ class ProductServiceTest {
     }
 
     @Disabled
-    public void createProductWithNullFieldsTest() {
+    void createProductWithNullFieldsTest() {
         Product invalidProduct = Product.builder()
                 .name(null)
                 .build();

@@ -20,8 +20,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @DataJpaTest
@@ -51,7 +50,7 @@ class ProductCategoryRepositoryTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         productRepository.deleteAll();
         restaurantRepository.deleteAll();
         productCategoryRepository.deleteAll();
@@ -93,7 +92,7 @@ class ProductCategoryRepositoryTest {
     }
 
     @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
+    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
         ProductCategoryEntity productCategory = createInvalidProductCategory();
 
         ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
@@ -106,7 +105,7 @@ class ProductCategoryRepositoryTest {
         // Adicionar saída de log para a mensagem da exceção
         log.info("Actual Exception Message:{}", actualMessage);
 
-        assertNotNull(actualMessage.contains(expectedMessage),
+        assertTrue(actualMessage.contains(expectedMessage),
                 "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 

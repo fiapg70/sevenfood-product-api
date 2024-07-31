@@ -85,7 +85,7 @@ class RestaurantServiceTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockitoAnnotations.initMocks(this);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
@@ -155,7 +155,7 @@ class RestaurantServiceTest {
     }
 
     @Disabled
-    public void createRestaurantWithNullFieldsTest() {
+    void createRestaurantWithNullFieldsTest() {
         Restaurant invalidRestaurant = Restaurant.builder()
                 .name(null)
                 .cnpj(null)

@@ -2,8 +2,10 @@ package br.com.sevenfood.product.sevenfoodproductapi.api;
 
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,11 @@ class ProductCategoryResourcesTest {
     @Autowired
     private ProductCategoryService service;
 
+    @Autowired
+    private ProductCategoryRepository repository;
+
+    private ProductCategory productCategory;
+
     private ProductCategory getProductCategory() {
         return ProductCategory.builder()
                 .name("Bebida")
@@ -45,22 +52,26 @@ class ProductCategoryResourcesTest {
 
     private ProductCategory getProductCategoryUpdate() {
         return ProductCategory.builder()
-                .name("Bebida")
+                .name("Bebida1")
                 .build();
     }
 
+    @BeforeEach
+    void setUp() {
+        repository.deleteAll();
+        this.productCategory = service.save(getProductCategory());
+    }
 
-    @Disabled
+    @Test
     void findsTaskById() throws Exception {
-        Long id = 1l;
-
+        Long id = productCategory.getId();
         mockMvc.perform(get("/v1/product-categories/{id}", id))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Bebida"));
     }
 
-    @Disabled
+    @Test
     void getAll() throws Exception
     {
         mockMvc.perform(MockMvcRequestBuilders
@@ -77,7 +88,7 @@ class ProductCategoryResourcesTest {
     void create() throws Exception {
         String create = JsonUtil.getJson(getProductCategory());
 
-        mockMvc.perform( MockMvcRequestBuilders
+        mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/product-categories")
                         .content(create)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,24 +97,26 @@ class ProductCategoryResourcesTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty());
     }
 
-
-    @Disabled
+    @Test
     void update() throws Exception {
+        repository.deleteAll();
+        ProductCategory savedProductCategory = service.save(getProductCategory());
+        Long id = savedProductCategory.getId();
         String update = JsonUtil.getJson(getProductCategoryUpdate());
 
         mockMvc.perform( MockMvcRequestBuilders
-                        .put("/v1/product-categories/{id}", 1)
+                        .put("/v1/product-categories/{id}", id)
                         .content(update)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bebida"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bebida1"));
     }
 
     @Test
     void delete() throws Exception
     {
         mockMvc.perform( MockMvcRequestBuilders.delete("/v1/product-categories/{id}", 1) )
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 }

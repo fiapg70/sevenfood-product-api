@@ -50,7 +50,7 @@ class ProductRepositoryTest {
     private Faker faker = new Faker();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         log.info("Cleaning up database...");
         productRepository.deleteAll();
         productCategoryRepository.deleteAll();
