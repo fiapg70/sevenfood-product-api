@@ -178,7 +178,7 @@ class RestaurantResourcesTest {
         String update = JsonUtil.getJson(new Restaurant());
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-                        .put("/v1/products/{id}", 99L)
+                        .put("/v1/restaurants/{id}", 99L)
                         .content(update)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -194,10 +194,10 @@ class RestaurantResourcesTest {
         RestaurantRequest product = new RestaurantRequest();
         String create = JsonUtil.getJson(product);
 
-        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontroado ao atualizar"));
+        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Restaurante não encontroado ao atualizar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-                        .put("/v1/products/{id}", 99L)
+                        .put("/v1/restaurants/{id}", 99L)
                         .content(create)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -228,7 +228,7 @@ class RestaurantResourcesTest {
     @Test
     void testById_Exception() throws Exception {
         RestaurantRequest restaurantRequest = new RestaurantRequest();
-        when(productApiMapper.fromRquest(restaurantRequest)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por id"));
+        when(productApiMapper.fromRquest(restaurantRequest)).thenThrow(new RuntimeException("Restaurante não encontrado ao buscar por id"));
 
         MvcResult result = mockMvc.perform(get("/v1/restaurants/{id}", 99L))
                 .andDo(print())

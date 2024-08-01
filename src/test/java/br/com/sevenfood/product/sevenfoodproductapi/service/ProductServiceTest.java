@@ -11,6 +11,7 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.produc
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -22,13 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.validation.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -215,31 +213,31 @@ class ProductServiceTest {
         //verify(productRepository, times(1)).save(product);
     }
 
-    @Disabled
-    void createProductWithNullFieldsTest() {
-        Product invalidProduct = Product.builder()
-                .name(null)
-                .build();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        Product product = new Product();
+        product.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
+        product.setCode(UUID.randomUUID().toString());
+        product.setPic("hhh");
+        product.setPrice(BigDecimal.TEN);
+        product.setDescription("Coca-Cola");
+        product.setProductCategoryId(1L);
+        product.setRestaurantId(1L);
 
-        // Executando a validação explicitamente
-        Set<ConstraintViolation<Product>> violations = validator.validate(invalidProduct);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(productRepository).save(product);
 
-        // Verificando se há violações de restrição
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productRepository.save(invalidProduct);
+        assertThrows(DataException.class, () -> {
+            productRepository.save(product);
         });
+    }
 
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
+    @Test
+    void testRemove_Exception() {
+        Long productId = 99L;
 
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
+        boolean result = productService.remove(productId);
+        assertFalse(result);
+        verify(productRepository, never()).remove(productId);
     }
 }

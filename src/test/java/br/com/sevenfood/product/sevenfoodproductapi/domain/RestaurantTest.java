@@ -4,76 +4,49 @@ import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RestaurantTest {
 
     @Test
-    void testUpdate() {
-        // Arrange
-        Restaurant originalRestaurant = Restaurant.builder()
-                .id(1L)
-                .name("Original Name")
-                .cnpj("Original CNPJ")
-                .build();
-
-        Restaurant newRestaurant = Restaurant.builder()
-                .name("New Name")
-                .cnpj("New CNPJ")
-                .build();
-
-        // Act
-        originalRestaurant.update(2L, newRestaurant);
-
-        // Assert
-        assertThat(originalRestaurant.getId()).isEqualTo(2L);
-        assertThat(originalRestaurant.getName()).isEqualTo("New Name");
-        assertThat(originalRestaurant.getCnpj()).isEqualTo("New CNPJ");
-    }
-
-    @Test
     void testGettersAndSetters() {
-        // Arrange
         Restaurant restaurant = new Restaurant();
+
         restaurant.setId(1L);
-        restaurant.setName("Test Name");
-        restaurant.setCnpj("Test CNPJ");
+        restaurant.setName("Seven Food");
+        restaurant.setCnpj("02.365.347/0001-63");
 
-        // Assert
-        assertThat(restaurant.getId()).isEqualTo(1L);
-        assertThat(restaurant.getName()).isEqualTo("Test Name");
-        assertThat(restaurant.getCnpj()).isEqualTo("Test CNPJ");
-    }
-
-    @Test
-    void testToString() {
-        // Arrange
-        Restaurant restaurant = Restaurant.builder()
-                .id(1L)
-                .name("Test Name")
-                .cnpj("Test CNPJ")
-                .build();
-
-        // Assert
-        assertThat(restaurant).hasToString("Restaurant(id=1, name=Test Name, cnpj=Test CNPJ)");
+        assertEquals(1L, restaurant.getId());
+        assertEquals("Seven Food", restaurant.getName());
+        assertEquals("02.365.347/0001-63", restaurant.getCnpj());
     }
 
     @Test
     void testEqualsAndHashCode() {
-        // Arrange
-        Restaurant restaurant1 = Restaurant.builder()
-                .id(1L)
-                .name("Test Name")
-                .cnpj("Test CNPJ")
-                .build();
+        Restaurant restaurant1 = new Restaurant(1L, "Seven Food", "02.365.347/0001-63");
+        Restaurant restaurant2 = new Restaurant(1L, "Seven Food", "02.365.347/0001-63");
 
-        Restaurant restaurant2 = Restaurant.builder()
-                .id(1L)
-                .name("Test Name")
-                .cnpj("Test CNPJ")
-                .build();
+        assertEquals(restaurant1, restaurant2);
+        assertEquals(restaurant1.hashCode(), restaurant2.hashCode());
+    }
 
-        // Assert
-        assertThat(restaurant1).isEqualTo(restaurant2);
-        assertThat(restaurant1).hasSameHashCodeAs(restaurant2);
+    @Test
+    void testToString() {
+        Restaurant restaurant = new Restaurant(1L, "Seven Food", "02.365.347/0001-63");
+
+        String expectedString = "Restaurant(id=1, name=Seven Food, cnpj=02.365.347/0001-63)";
+        assertEquals(expectedString, restaurant.toString());
+    }
+
+    @Test
+    void testUpdate() {
+        Restaurant existingRestaurant = new Restaurant(1L, "Seven Food", "02.365.347/0001-63");
+        Restaurant newRestaurant = new Restaurant(null, "Eight Food", "03.456.789/0002-54");
+
+        existingRestaurant.update(2L, newRestaurant);
+
+        assertEquals(2L, existingRestaurant.getId());
+        assertEquals("Eight Food", existingRestaurant.getName());
+        assertEquals("03.456.789/0002-54", existingRestaurant.getCnpj());
     }
 }

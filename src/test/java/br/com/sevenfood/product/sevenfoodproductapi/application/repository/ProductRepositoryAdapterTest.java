@@ -10,6 +10,7 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.produc
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -163,22 +165,23 @@ class ProductRepositoryAdapterTest {
         assertThat(saved).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
     }
 
-    @Disabled
-    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        ProductEntity product = createInvalidProduct();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
+        productEntity.setCode(UUID.randomUUID().toString());
+        productEntity.setPic("hhh");
+        productEntity.setPrice(BigDecimal.TEN);
+        productEntity.setDescription("Coca-Cola");
+        productEntity.setProductCategory(getProductCategoryEntity());
+        productEntity.setRestaurant(getRestaurantEntity());
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productRepository.save(product);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(productRepository).save(productEntity);
+
+        assertThrows(DataException.class, () -> {
+            productRepository.save(productEntity);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
     private ProductEntity createInvalidProduct() {

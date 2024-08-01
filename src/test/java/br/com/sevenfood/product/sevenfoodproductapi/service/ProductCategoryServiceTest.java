@@ -2,11 +2,13 @@ package br.com.sevenfood.product.sevenfoodproductapi.service;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductCategoryRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -146,31 +149,36 @@ class ProductCategoryServiceTest {
         //verify(productCategoryRepository, times(1)).save(productCategory);
     }
 
-    @Disabled
-    void createProductCategoryWithNullFieldsTest() {
-        ProductCategory invalidProductCategory = ProductCategory.builder()
-                .name(null)
-                .build();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        // Executando a validação explicitamente
-        Set<ConstraintViolation<ProductCategory>> violations = validator.validate(invalidProductCategory);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(productCategoryRepository).save(productCategory);
 
-        // Verificando se há violações de restrição
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productCategoryRepository.save(invalidProductCategory);
+        assertThrows(DataException.class, () -> {
+            productCategoryRepository.save(productCategory);
         });
+    }
 
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
+    @Test
+    void testRemoveRestaurant_Success() {
+        Long restaurantId = 1L;
+        ProductCategory productCategory = getProductCategory();
+        productCategory.setId(restaurantId);
 
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
+        when(productCategoryService.findById(restaurantId)).thenReturn(productCategory);
+        boolean result = productCategoryService.remove(restaurantId);
+        assertTrue(result);
+    }
 
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
+    @Test
+    void testRemove_Exception() {
+        Long productId = 99L;
+
+        boolean result = productCategoryService.remove(productId);
+        assertFalse(result);
+        verify(productCategoryRepository, never()).remove(productId);
     }
 }

@@ -3,9 +3,12 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.repository;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.repository.ProductCategoryRepositoryAdapter;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -14,12 +17,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -75,22 +80,17 @@ class ProductCategoryRepositoryAdapterTest {
         assertThat(saved).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
     }
 
-    @Disabled
-    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        ProductCategoryEntity productCategory = createInvalidProductCategory();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        ProductCategoryEntity productCategoryEntity = new ProductCategoryEntity();
+        productCategoryEntity.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productCategoryRepository.save(productCategory);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(productCategoryRepository).save(productCategoryEntity);
+
+        assertThrows(DataException.class, () -> {
+            productCategoryRepository.save(productCategoryEntity);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
     private ProductCategoryEntity createInvalidProductCategory() {

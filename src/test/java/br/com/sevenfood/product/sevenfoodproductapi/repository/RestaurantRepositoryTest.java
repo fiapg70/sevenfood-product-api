@@ -1,11 +1,14 @@
 package br.com.sevenfood.product.sevenfoodproductapi.repository;
 
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
+import org.h2.jdbc.JdbcSQLDataException;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,7 @@ import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.TestPropertySource;
 
 import javax.validation.ConstraintViolationException;
@@ -105,25 +109,25 @@ class RestaurantRepositoryTest {
         }
     }
 
-    @Disabled
-    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        RestaurantEntity restaurant = createInvalidRestaurant();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        RestaurantEntity restaurant = new RestaurantEntity();
+        restaurant.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
+        assertThrows(DataIntegrityViolationException.class, () -> {
             restaurantRepository.save(restaurant);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        log.info("Actual Exception Message: {}", actualMessage);
-
-        assertThat(actualMessage).contains(expectedMessage);
     }
 
     private RestaurantEntity createInvalidRestaurant() {
         return RestaurantEntity.builder()
                 .name("") // Nome vazio pode causar uma violação
+                .build();
+    }
+
+    private RestaurantEntity createInvalidRestaurantGt255() {
+        return RestaurantEntity.builder()
+                .name(generateLongName(260)) // Nome vazio pode causar uma violação
                 .build();
     }
 
@@ -135,7 +139,6 @@ class RestaurantRepositoryTest {
 
     @Test
     void whenFindById_thenReturnRestaurant() {
-
         productRepository.deleteAll();
         restaurantRepository.deleteAll();
         productCategoryRepository.deleteAll();
@@ -189,5 +192,13 @@ class RestaurantRepositoryTest {
 
         assertThat(restaurantList).hasSize(2).extracting(RestaurantEntity::getName)
                 .containsExactlyInAnyOrder(nameCompany1, nameCompany2);
+    }
+
+    private String generateLongName(int length) {
+        StringBuilder name = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            name.append('a'); // Adiciona o caractere 'a' repetidamente
+        }
+        return name.toString();
     }
 }

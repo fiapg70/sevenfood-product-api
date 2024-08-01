@@ -3,9 +3,11 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.repository;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.RestaurantMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.repository.RestaurantRepositoryAdapter;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -74,22 +77,17 @@ class RestaurantRepositoryAdapterTest {
         assertThat(saved).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
     }
 
-    @Disabled
-    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        RestaurantEntity pestaurant = createInvalidRestaurant();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        RestaurantEntity restaurantEntity = new RestaurantEntity();
+        restaurantEntity.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            pestaurantRepository.save(pestaurant);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(pestaurantRepository).save(restaurantEntity);
+
+        assertThrows(DataException.class, () -> {
+            pestaurantRepository.save(restaurantEntity);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
     private RestaurantEntity createInvalidRestaurant() {

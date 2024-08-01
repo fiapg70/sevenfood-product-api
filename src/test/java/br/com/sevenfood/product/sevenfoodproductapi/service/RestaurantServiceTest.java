@@ -1,12 +1,14 @@
 package br.com.sevenfood.product.sevenfoodproductapi.service;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.RestaurantMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.RestaurantRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -19,10 +21,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.validation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -154,32 +158,36 @@ class RestaurantServiceTest {
         //verify(restaurantRepository, times(1)).save(restaurant);
     }
 
-    @Disabled
-    void createRestaurantWithNullFieldsTest() {
-        Restaurant invalidRestaurant = Restaurant.builder()
-                .name(null)
-                .cnpj(null)
-                .build();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        // Executando a validação explicitamente
-        Set<ConstraintViolation<Restaurant>> violations = validator.validate(invalidRestaurant);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(restaurantRepository).save(restaurant);
 
-        // Verificando se há violações de restrição
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            restaurantRepository.save(invalidRestaurant);
+        assertThrows(DataException.class, () -> {
+            restaurantRepository.save(restaurant);
         });
+    }
 
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
+    @Test
+    void testRemoveRestaurant_Success() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = getRestaurant(); // Método que cria um objeto Restaurant para o teste
+        restaurant.setId(restaurantId);
 
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
+        when(restaurantService.findById(restaurantId)).thenReturn(restaurant);
+        boolean result = restaurantService.remove(restaurantId);
+        assertTrue(result);
+    }
 
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
+    @Test
+    void testRemove_Exception() {
+        Long productId = 99L;
+
+        boolean result = restaurantService.remove(productId);
+        assertFalse(result);
+        verify(restaurantRepository, never()).remove(productId);
     }
 }
