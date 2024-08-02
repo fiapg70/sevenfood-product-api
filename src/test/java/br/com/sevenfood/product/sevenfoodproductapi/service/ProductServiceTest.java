@@ -4,6 +4,8 @@ import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.product.*;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.productcategory.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
@@ -43,6 +45,21 @@ class ProductServiceTest {
 
     @Mock
     ProductMapper mapper;
+
+    @Mock
+    CreateProductPort createProductPort;
+
+    @Mock
+    DeleteProductPort deleteProductPort;
+
+    @Mock
+    FindByIdProductPort findByIdProductPort;
+
+    @Mock
+    FindProductsPort findProductsPort;
+
+    @Mock
+    UpdateProductPort updateProductPort;
 
     private Validator validator;
 
@@ -98,7 +115,7 @@ class ProductServiceTest {
 
     private Product getProduct(Restaurant restaurant, ProductCategory productCategory) {
         return Product.builder()
-                .name("Bebida")
+                .name("Coca-Cola")
                 .code(UUID.randomUUID().toString())
                 .pic("hhh")
                 .price(BigDecimal.TEN)
@@ -187,7 +204,7 @@ class ProductServiceTest {
 
         Product product = productService.findById(1L);
 
-        assertEquals("Bebida", product.getName());
+        assertEquals("Coca-Cola", product.getName());
     }
 
     @Test
@@ -197,7 +214,7 @@ class ProductServiceTest {
 
         Product result = productService.findById(1L);
 
-        assertEquals("Bebida", result.getName());
+        assertEquals("Coca-Cola", result.getName());
     }
 
     @Test
@@ -239,5 +256,63 @@ class ProductServiceTest {
         boolean result = productService.remove(productId);
         assertFalse(result);
         verify(productRepository, never()).remove(productId);
+    }
+
+    @Test
+    void testCreateProduct() {
+        Product product = getProduct(getRestaurant(), getProductCategory());
+        Product productResult = getProduct(getRestaurant(), getProductCategory());
+        when(createProductPort.save(product)).thenReturn(productResult);
+
+        Product result = createProductPort.save(product);
+
+        assertNotNull(result);
+        assertEquals("Coca-Cola", result.getName());
+    }
+
+    @Test
+    void testDeleteProduct() {
+        Long productId = 1L;
+        when(deleteProductPort.remove(productId)).thenReturn(true);
+
+        boolean result = deleteProductPort.remove(productId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testFindByIdProduct() {
+        Product product = getProduct(getRestaurant(), getProductCategory());
+        when(findByIdProductPort.findById(1L)).thenReturn(product);
+
+        Product result = findByIdProductPort.findById(1L);
+
+        assertNotNull(result);
+        assertEquals("Coca-Cola", result.getName());
+    }
+
+    @Test
+    void testFindProducts() {
+        Product product = getProduct(getRestaurant(), getProductCategory());
+        List<Product> products = new ArrayList<>();
+        products.add(product);
+
+        when(findProductsPort.findAll()).thenReturn(products);
+        List<Product> result = findProductsPort.findAll();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testUpdateProduct() {
+        Long productId = 1L;
+        Product product = getProduct(getRestaurant(), getProductCategory());
+
+        when(updateProductPort.update(productId, product)).thenReturn(product);
+        Product result = updateProductPort.update(productId, product);
+
+        assertNotNull(result);
+        assertEquals("Coca-Cola", result.getName());
     }
 }

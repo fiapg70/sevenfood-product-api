@@ -2,6 +2,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.database.reposi
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.commons.exception.ResourceNotRemoveException;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductCategoryRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
@@ -27,11 +28,9 @@ public class ProductCategoryRepositoryAdapter implements ProductCategoryReposito
         try {
             ProductCategoryEntity productCategoryEntity = productCategoryMapper.fromModelTpEntity(productCategory);
             ProductCategoryEntity saved = productCategoryRepository.save(productCategoryEntity);
-            if (saved.getName() == null) {
-               throw new ResourceFoundException("Erro ao salvar produto no repositorio");
-            }
+            validateSavedEntity(saved);
             return productCategoryMapper.fromEntityToModel(saved);
-        } catch (Exception e) {
+        } catch (ResourceFoundException e) {
             log.error("Erro ao salvar produto: {}", e.getMessage());
             return null;
         }
@@ -42,7 +41,7 @@ public class ProductCategoryRepositoryAdapter implements ProductCategoryReposito
          try {
              productCategoryRepository.deleteById(id);
             return Boolean.TRUE;
-        } catch (Exception e) {
+        } catch (ResourceNotRemoveException e) {
             return Boolean.FALSE;
         }
     }
@@ -72,5 +71,15 @@ public class ProductCategoryRepositoryAdapter implements ProductCategoryReposito
             return productCategoryMapper.fromEntityToModel(productCategoryRepository.save(productCategoryToChange));
         }
         return null;
+    }
+
+    private void validateSavedEntity(ProductCategoryEntity saved) {
+        if (saved == null) {
+            throw new ResourceFoundException("Erro ao salvar produto no repositorio: entidade salva é nula");
+        }
+
+        if (saved.getName() == null) {
+            throw new ResourceFoundException("Erro ao salvar produto no repositorio: nome do produto é nulo");
+        }
     }
 }

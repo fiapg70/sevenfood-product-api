@@ -23,7 +23,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
 
     @Override
     public Restaurant save(Restaurant restaurant) {
-        RestaurantEntity restaurantEntity = restaurantMapper.fromModelTpEntity(restaurant);
+        RestaurantEntity restaurantEntity = restaurantMapper.fromModelToEntity(restaurant);
         Optional<RestaurantEntity> byCnpj = restaurantRepository.findByCnpj(restaurantEntity.getCnpj());
 
         if (byCnpj.isPresent()) {

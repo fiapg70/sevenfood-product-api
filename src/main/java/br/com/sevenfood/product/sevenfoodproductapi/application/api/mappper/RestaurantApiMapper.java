@@ -21,6 +21,4 @@ public interface RestaurantApiMapper {
     RestaurantResponse fromEntidy(Restaurant restaurant);
 
    List<RestaurantResponse> map(List<Restaurant> restaurants);
-
-
 }

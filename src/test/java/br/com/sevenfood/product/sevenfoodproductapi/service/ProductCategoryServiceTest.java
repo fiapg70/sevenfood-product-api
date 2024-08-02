@@ -3,6 +3,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.service;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.productcategory.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductCategoryRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
@@ -42,6 +43,21 @@ class ProductCategoryServiceTest {
 
     @Mock
     ProductCategoryMapper mapper;
+
+    @Mock
+    CreateProductCategoryPort createProductCategoryPort;
+
+    @Mock
+    DeleteProductCategoryPort deleteProductCategoryPort;
+
+    @Mock
+    FindByIdProductCategoryPort findByIdProductCategoryPort;
+
+    @Mock
+    FindProductCategoriesPort findProductCategoriesPort;
+
+    @Mock
+    UpdateProductCategoryPort updateProductCategoryPort;
 
     private Validator validator;
 
@@ -181,4 +197,66 @@ class ProductCategoryServiceTest {
         assertFalse(result);
         verify(productCategoryRepository, never()).remove(productId);
     }
+
+    @Test
+    void testCreateProductCategory() {
+        ProductCategory productCategory = getProductCategory();
+        when(createProductCategoryPort.save(productCategory)).thenReturn(productCategory);
+
+        ProductCategory result = createProductCategoryPort.save(productCategory);
+
+        assertNotNull(result);
+        assertEquals("Bebida", result.getName());
+    }
+
+    @Test
+    void testDeleteProductCategory() {
+        Long productId = 1L;
+        when(deleteProductCategoryPort.remove(productId)).thenReturn(true);
+
+        boolean result = deleteProductCategoryPort.remove(productId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testFindByIdProductCategory() {
+        ProductCategory productCategory = getProductCategory();
+        when(findByIdProductCategoryPort.findById(1L)).thenReturn(productCategory);
+
+        ProductCategory result = findByIdProductCategoryPort.findById(1L);
+
+        assertNotNull(result);
+        assertEquals("Bebida", result.getName());
+    }
+
+    @Test
+    void testFindProductCategories() {
+        List<ProductCategory> productCategories = new ArrayList<>();
+        productCategories.add(getProductCategory());
+        productCategories.add(getProductCategory1());
+        productCategories.add(getProductCategory2());
+
+        when(findProductCategoriesPort.findAll()).thenReturn(productCategories);
+
+        List<ProductCategory> result = findProductCategoriesPort.findAll();
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    void testUpdateProductCategory() {
+        Long productId = 1L;
+        ProductCategory productCategory = getProductCategory();
+        productCategory.setName("Updated Name");
+
+        when(updateProductCategoryPort.update(productId, productCategory)).thenReturn(productCategory);
+
+        ProductCategory result = updateProductCategoryPort.update(productId, productCategory);
+
+        assertNotNull(result);
+        assertEquals("Updated Name", result.getName());
+    }
+
 }

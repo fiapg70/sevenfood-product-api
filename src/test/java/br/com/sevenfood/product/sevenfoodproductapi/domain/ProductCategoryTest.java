@@ -1,47 +1,89 @@
 package br.com.sevenfood.product.sevenfoodproductapi.domain;
 
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProductCategoryTest {
 
+    private ProductCategory productCategory;
+    private ProductCategory anotherProductCategory;
+
+    @BeforeEach
+    void setUp() {
+        productCategory = ProductCategory.builder()
+                .id(1L)
+                .name("Beverages")
+                .build();
+
+        anotherProductCategory = ProductCategory.builder()
+                .id(2L)
+                .name("Snacks")
+                .build();
+    }
+
     @Test
-    void testGettersAndSetters() {
-        ProductCategory productCategory = new ProductCategory();
-
-        productCategory.setId(1L);
-        productCategory.setName("Beverages");
-
+    void testGetters() {
         assertEquals(1L, productCategory.getId());
         assertEquals("Beverages", productCategory.getName());
     }
 
     @Test
-    void testEqualsAndHashCode() {
-        ProductCategory category1 = new ProductCategory(1L, "Beverages");
-        ProductCategory category2 = new ProductCategory(1L, "Beverages");
+    void testSetters() {
+        productCategory.setId(2L);
+        productCategory.setName("Snacks");
 
-        assertEquals(category1, category2);
-        assertEquals(category1.hashCode(), category2.hashCode());
+        assertEquals(2L, productCategory.getId());
+        assertEquals("Snacks", productCategory.getName());
+    }
+
+    @Test
+    void testEquals() {
+        ProductCategory copy = ProductCategory.builder()
+                .id(1L)
+                .name("Beverages")
+                .build();
+
+        assertEquals(productCategory, copy);
+    }
+
+    @Test
+    void testHashCode() {
+        ProductCategory copy = ProductCategory.builder()
+                .id(1L)
+                .name("Beverages")
+                .build();
+
+        assertEquals(productCategory.hashCode(), copy.hashCode());
     }
 
     @Test
     void testToString() {
-        ProductCategory productCategory = new ProductCategory(1L, "Beverages");
-
-        String expectedString = "ProductCategory(id=1, name=Beverages)";
-        assertEquals(expectedString, productCategory.toString());
+        String expected = "ProductCategory(id=1, name=Beverages)";
+        assertEquals(expected, productCategory.toString());
     }
 
     @Test
     void testUpdate() {
-        ProductCategory category1 = new ProductCategory(1L, "Beverages");
-        ProductCategory category2 = new ProductCategory();
-        category2.update(2L, category1);
+        productCategory.update(3L, anotherProductCategory);
 
-        assertEquals(2L, category2.getId());
-        assertEquals("Beverages", category2.getName());
+        assertEquals(3L, productCategory.getId());
+        assertEquals("Snacks", productCategory.getName());
+    }
+
+    @Test
+    void testNoArgsConstructor() {
+        ProductCategory newProductCategory = new ProductCategory();
+        assertNotNull(newProductCategory);
+    }
+
+    @Test
+    void testAllArgsConstructor() {
+        ProductCategory newProductCategory = new ProductCategory(4L, "Frozen Foods");
+        assertEquals(4L, newProductCategory.getId());
+        assertEquals("Frozen Foods", newProductCategory.getName());
     }
 }

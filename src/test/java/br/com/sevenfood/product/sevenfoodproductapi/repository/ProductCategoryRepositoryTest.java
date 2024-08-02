@@ -50,7 +50,6 @@ class ProductCategoryRepositoryTest {
                 .build();
     }
 
-
     @BeforeEach
     void setUp() {
         productRepository.deleteAll();

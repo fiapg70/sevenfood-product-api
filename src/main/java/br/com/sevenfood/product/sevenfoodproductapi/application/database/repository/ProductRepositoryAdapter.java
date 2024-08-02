@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,18 +26,22 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
     public Product save(Product product) {
         try {
             ProductEntity productEntity = productMapper.fromModelTpEntity(product);
-            productEntity.setCode(UUID.randomUUID().toString());
-            ProductEntity saved = productRepository.save(productEntity);
-            return productMapper.fromEntityToModel(saved);
+            if (productEntity != null) {
+                productEntity.setCode(UUID.randomUUID().toString());
+                ProductEntity saved = productRepository.save(productEntity);
+                return productMapper.fromEntityToModel(saved);
+            }
         } catch (Exception e) {
             log.info("Erro ao salvar produto: " + e.getMessage());
             return null;
         }
+
+        return null;
     }
 
     @Override
     public boolean remove(Long id) {
-         try {
+        try {
             productRepository.deleteById(id);
             return Boolean.TRUE;
         } catch (Exception e) {

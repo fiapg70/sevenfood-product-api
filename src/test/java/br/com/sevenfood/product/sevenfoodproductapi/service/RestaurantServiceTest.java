@@ -3,6 +3,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.service;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.RestaurantMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.restaurant.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.RestaurantRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
@@ -45,6 +46,21 @@ class RestaurantServiceTest {
     RestaurantMapper mapper;
 
     private Validator validator;
+
+    @Mock
+    CreateRestaurantPort createRestaurantPort;
+
+    @Mock
+    DeleteRestaurantPort deleteRestaurantPort;
+
+    @Mock
+    FindByIdRestaurantPort findByIdRestaurantPort;
+
+    @Mock
+    FindRestaurantsPort findRestaurantsPort;
+
+    @Mock
+    UpdateRestaurantPort updateRestaurantPort;
 
     private RestaurantEntity getRestaurantEntity() {
         return RestaurantEntity.builder()
@@ -190,4 +206,82 @@ class RestaurantServiceTest {
         assertFalse(result);
         verify(restaurantRepository, never()).remove(productId);
     }
+
+    @Test
+    void createRestaurantPortTest() {
+        Restaurant restaurant = getRestaurant();
+        Restaurant restaurantResult = getRestaurant();
+        restaurantResult.setId(1L);
+
+        CreateRestaurantPort createRestaurantPort = mock(CreateRestaurantPort.class);
+        when(createRestaurantPort.save(restaurant)).thenReturn(restaurantResult);
+
+        Restaurant savedRestaurant = createRestaurantPort.save(restaurant);
+
+        assertNotNull(savedRestaurant);
+        assertEquals(1L, savedRestaurant.getId());
+        assertEquals("Seven Food", savedRestaurant.getName());
+    }
+
+    @Test
+    void deleteRestaurantPortTest() {
+        Long restaurantId = 1L;
+
+        DeleteRestaurantPort deleteRestaurantPort = mock(DeleteRestaurantPort.class);
+        when(deleteRestaurantPort.remove(restaurantId)).thenReturn(true);
+
+        boolean result = deleteRestaurantPort.remove(restaurantId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void findByIdRestaurantPortTest() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = getRestaurant();
+        restaurant.setId(restaurantId);
+
+        FindByIdRestaurantPort findByIdRestaurantPort = mock(FindByIdRestaurantPort.class);
+        when(findByIdRestaurantPort.findById(restaurantId)).thenReturn(restaurant);
+
+        Restaurant foundRestaurant = findByIdRestaurantPort.findById(restaurantId);
+
+        assertNotNull(foundRestaurant);
+        assertEquals("Seven Food", foundRestaurant.getName());
+        assertEquals("02.365.347/0001-63", foundRestaurant.getCnpj());
+    }
+
+    @Test
+    void findRestaurantsPortTest() {
+        List<Restaurant> restaurants = new ArrayList<>();
+        restaurants.add(getRestaurant());
+        restaurants.add(getRestaurant1());
+        restaurants.add(getRestaurant2());
+
+        FindRestaurantsPort findRestaurantsPort = mock(FindRestaurantsPort.class);
+        when(findRestaurantsPort.findAll()).thenReturn(restaurants);
+
+        List<Restaurant> restaurantList = findRestaurantsPort.findAll();
+
+        assertNotNull(restaurantList);
+        assertEquals(3, restaurantList.size());
+    }
+
+    @Test
+    void updateRestaurantPortTest() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = getRestaurant();
+        restaurant.setId(restaurantId);
+        restaurant.setName("Updated Name");
+
+        UpdateRestaurantPort updateRestaurantPort = mock(UpdateRestaurantPort.class);
+        when(updateRestaurantPort.update(restaurantId, restaurant)).thenReturn(restaurant);
+
+        Restaurant updatedRestaurant = updateRestaurantPort.update(restaurantId, restaurant);
+
+        assertNotNull(updatedRestaurant);
+        assertEquals("Updated Name", updatedRestaurant.getName());
+        assertEquals("02.365.347/0001-63", updatedRestaurant.getCnpj());
+    }
+
 }

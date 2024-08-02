@@ -1,20 +1,15 @@
-package br.com.sevenfood.product.sevenfoodproductapi.api;
+package br.com.sevenfood.product.sevenfoodproductapi.api.resources;
 
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.RestaurantRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.RestaurantApiMapper;
-import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
-import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
-import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.util.CnpjGenerator;
 import br.com.sevenfood.product.sevenfoodproductapi.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

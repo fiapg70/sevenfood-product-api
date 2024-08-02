@@ -20,6 +20,4 @@ public interface ProductCategoryApiMapper {
     ProductCategoryResponse fromEntidy(ProductCategory productCategory);
 
    List<ProductCategoryResponse> map(List<ProductCategory> productCategories);
-
-
 }

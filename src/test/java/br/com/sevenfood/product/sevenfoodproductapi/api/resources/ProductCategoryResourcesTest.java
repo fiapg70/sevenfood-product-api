@@ -1,4 +1,4 @@
-package br.com.sevenfood.product.sevenfoodproductapi.api;
+package br.com.sevenfood.product.sevenfoodproductapi.api.resources;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductCategoryRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductCategoryApiMapper;
