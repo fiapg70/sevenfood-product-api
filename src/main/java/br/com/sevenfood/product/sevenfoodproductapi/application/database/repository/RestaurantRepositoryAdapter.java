@@ -68,7 +68,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
         if (resultById.isPresent()) {
 
             RestaurantEntity restaurantToChange = resultById.get();
-            restaurantToChange.update(id, restaurant);
+            restaurantToChange.update(id, restaurantToChange);
 
             return restaurantMapper.fromEntityToModel(restaurantRepository.save(restaurantToChange));
         }

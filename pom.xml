@@ -27,10 +27,13 @@
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/RunApplication.java,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/api/exception/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/api/dto/**,
+            src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/api/mapper/**,
+            src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/database/mapper/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/config/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/util/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/exception/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/core/utils/**,
+            src/main/java/br/com/sevenfood/product/sevenfoodproductapi/core/ports/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/Constants.java,
             pom.xml
         </sonar.exclusions>
@@ -41,10 +44,13 @@
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/RunApplication.java,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/api/exception/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/api/dto/**,
+            src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/api/mapper/**,
+            src/main/java/br/com/sevenfood/product/sevenfoodproductapi/application/database/mapper/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/config/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/util/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/exception/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/core/utils/**,
+            src/main/java/br/com/sevenfood/product/sevenfoodproductapi/core/ports/**,
             src/main/java/br/com/sevenfood/product/sevenfoodproductapi/commons/Constants.java,
         </sonar.coverage.exclusions>
         <sonar.dependencyCheck.basePath>${project.basedir}/owasp-dependency-check-logs</sonar.dependencyCheck.basePath>

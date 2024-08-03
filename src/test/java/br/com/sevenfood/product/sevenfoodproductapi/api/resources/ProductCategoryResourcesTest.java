@@ -1,7 +1,7 @@
 package br.com.sevenfood.product.sevenfoodproductapi.api.resources;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductCategoryRequest;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductCategoryApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductCategoryApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
@@ -142,7 +142,7 @@ class ProductCategoryResourcesTest {
         ProductCategoryRequest productCategoryRequest = new ProductCategoryRequest();
         String create = JsonUtil.getJson(productCategoryRequest);
 
-        when(productCategoryApiMapper.fromRquest(productCategoryRequest)).thenThrow(new RuntimeException("Produto não encontroado ao cadastrar"));
+        when(productCategoryApiMapper.fromRequest(productCategoryRequest)).thenThrow(new RuntimeException("Produto não encontroado ao cadastrar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/product-categories")
@@ -193,7 +193,7 @@ class ProductCategoryResourcesTest {
         ProductCategoryRequest product = new ProductCategoryRequest();
         String create = JsonUtil.getJson(product);
 
-        when(productCategoryApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontroado ao atualizar"));
+        when(productCategoryApiMapper.fromRequest(product)).thenThrow(new RuntimeException("Produto não encontroado ao atualizar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .put("/v1/product-categories/{id}", productCategoryId)
@@ -227,7 +227,7 @@ class ProductCategoryResourcesTest {
     @Test
     void testById_Exception() throws Exception {
         ProductCategoryRequest productCategoryRequest = new ProductCategoryRequest();
-        when(productCategoryApiMapper.fromRquest(productCategoryRequest)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por código"));
+        when(productCategoryApiMapper.fromRequest(productCategoryRequest)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por código"));
 
         MvcResult result = mockMvc.perform(get("/v1/product-categories/{id}", 99L))
                 .andDo(print())

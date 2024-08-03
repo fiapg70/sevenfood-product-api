@@ -2,7 +2,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.api.mapper;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.ProductResponse;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class ProductApiMapperTest {
         request.setRestaurantId(2L);
 
         // Act
-        Product product = productApiMapper.fromRquest(request);
+        Product product = productApiMapper.fromRequest(request);
 
         // Assert
         assertNotNull(product);
@@ -62,7 +62,7 @@ class ProductApiMapperTest {
         product.setRestaurantId(2L);
 
         // Act
-        ProductResponse response = productApiMapper.fromEntidy(product);
+        ProductResponse response = productApiMapper.fromEntity(product);
 
         // Assert
         assertNotNull(response);

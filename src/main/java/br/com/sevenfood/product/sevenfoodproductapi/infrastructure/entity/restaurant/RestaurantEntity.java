@@ -46,9 +46,9 @@ public class RestaurantEntity extends AuditDomain {
     @CNPJ(message = "CNPJ inválido")
     private String cnpj;
 
-    public void update(Long id, Restaurant restaurant) {
+    public void update(Long id, RestaurantEntity restaurantEntity) {
         this.id = id;
-        this.name = restaurant.getName();
-        this.cnpj = restaurant.getCnpj();
+        this.name = restaurantEntity.getName();
+        this.cnpj = restaurantEntity.getCnpj();
     }
 }

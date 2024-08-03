@@ -3,7 +3,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.api.resources;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.ProductResponse;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.Constants;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.util.RestUtils;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
@@ -13,19 +13,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -50,13 +46,13 @@ public class ProductResources {
     public ResponseEntity<ProductResponse> save(@Valid @RequestBody ProductRequest request) {
         try {
             log.info("Chegada do objeto para ser salvo {}", request);
-            Product product = productApiMapper.fromRquest(request);
+            Product product = productApiMapper.fromRequest(request);
             Product saved = createProductPort.save(product);
             if (saved == null) {
                 throw new ResourceFoundException("Produto não encontroado ao cadastrar");
             }
 
-            ProductResponse productResponse = productApiMapper.fromEntidy(saved);
+            ProductResponse productResponse = productApiMapper.fromEntity(saved);
             URI location = RestUtils.getUri(productResponse.getId());
 
             return ResponseEntity.created(location).body(productResponse);
@@ -76,13 +72,13 @@ public class ProductResources {
     public ResponseEntity<ProductResponse> update(@PathVariable("id") Long id, @Valid @RequestBody ProductRequest request) {
         try {
             log.info("Chegada do objeto para ser alterado {}", request);
-            var product = productApiMapper.fromRquest(request);
+            var product = productApiMapper.fromRequest(request);
             Product updated = updateProductPort.update(id, product);
             if (updated == null) {
                 throw new ResourceFoundException("Produto não encontroado ao atualizar");
             }
 
-            ProductResponse productResponse = productApiMapper.fromEntidy(updated);
+            ProductResponse productResponse = productApiMapper.fromEntity(updated);
             return ResponseEntity.ok(productResponse);
         } catch (Exception ex) {
             log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-update: {}", ex.getMessage());
@@ -122,7 +118,7 @@ public class ProductResources {
                 throw new ResourceFoundException("Produto não encontrado ao buscar por id");
             }
 
-            ProductResponse productResponse = productApiMapper.fromEntidy(productSaved);
+            ProductResponse productResponse = productApiMapper.fromEntity(productSaved);
             return ResponseEntity.ok(productResponse);
         } catch (Exception ex) {
             log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findOne: {}", ex.getMessage());
@@ -147,7 +143,7 @@ public class ProductResources {
                 throw new ResourceFoundException("Produto não encontrado ao buscar por código");
             }
 
-            ProductResponse productResponse = productApiMapper.fromEntidy(productSaved);
+            ProductResponse productResponse = productApiMapper.fromEntity(productSaved);
             return ResponseEntity.ok(productResponse);
         } catch (Exception ex) {
             log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findByCode: {}", ex.getMessage());

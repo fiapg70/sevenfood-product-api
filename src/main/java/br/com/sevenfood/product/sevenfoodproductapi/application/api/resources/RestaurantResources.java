@@ -3,7 +3,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.api.resources;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.RestaurantRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.RestaurantResponse;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.RestaurantApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.RestaurantApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.Constants;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.util.RestUtils;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
@@ -12,21 +12,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -51,13 +46,13 @@ public class RestaurantResources {
     public ResponseEntity<RestaurantResponse> save(@Valid @RequestBody RestaurantRequest request) {
         try {
             log.info("Chegada do objeto para ser salvo {}", request);
-            Restaurant restaurant = restaurantApiMapper.fromRquest(request);
+            Restaurant restaurant = restaurantApiMapper.fromRequest(request);
             Restaurant saved = createRestaurantPort.save(restaurant);
             if (saved == null) {
                 throw new ResourceFoundException("Produto não encontroado ao cadastrar");
             }
 
-            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntidy(saved);
+            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(saved);
             URI location = RestUtils.getUri(restaurantResponse.getId());
             return ResponseEntity.created(location).body(restaurantResponse);
         } catch (Exception ex) {
@@ -76,13 +71,13 @@ public class RestaurantResources {
     public ResponseEntity<RestaurantResponse> update(@PathVariable("id") Long id, @Valid @RequestBody RestaurantRequest request) {
         try {
             log.info("Chegada do objeto para ser alterado {}", request);
-            var restaurant = restaurantApiMapper.fromRquest(request);
+            var restaurant = restaurantApiMapper.fromRequest(request);
             Restaurant updated = updateRestaurantPort.update(id, restaurant);
             if (updated == null) {
                 throw new ResourceFoundException("Restaurante não encontroado ao atualizar");
             }
 
-            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntidy(updated);
+            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(updated);
             return ResponseEntity.ok(restaurantResponse);
         } catch (Exception ex) {
             log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-update: {}", ex.getMessage());
@@ -122,7 +117,7 @@ public class RestaurantResources {
                 throw new ResourceFoundException("Produto não encontrado ao buscar por código");
             }
 
-            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntidy(restaurantSaved);
+            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(restaurantSaved);
             return ResponseEntity.ok(restaurantResponse);
         } catch (Exception ex) {
             log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findByCode: {}", ex.getMessage());

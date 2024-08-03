@@ -2,7 +2,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.api.mapper;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.RestaurantRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.RestaurantResponse;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.RestaurantApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.RestaurantApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -23,7 +23,7 @@ class RestaurantApiMapperTest {
         request.setName("Test Restaurant");
         request.setCnpj("12345678901234");
 
-        Restaurant restaurant = mapper.fromRquest(request);
+        Restaurant restaurant = mapper.fromRequest(request);
 
         assertNotNull(restaurant);
         assertEquals(request.getName(), restaurant.getName());
@@ -37,7 +37,7 @@ class RestaurantApiMapperTest {
         restaurant.setName("Test Restaurant");
         restaurant.setCnpj("12345678901234");
 
-        RestaurantResponse response = mapper.fromEntidy(restaurant);
+        RestaurantResponse response = mapper.fromEntity(restaurant);
 
         assertNotNull(response);
         assertEquals(restaurant.getId(), response.getId());

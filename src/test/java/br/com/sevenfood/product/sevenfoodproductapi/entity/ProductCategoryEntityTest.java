@@ -17,16 +17,16 @@ class ProductCategoryEntityTest {
         ProductCategory productCategory = new ProductCategory();
         productCategory.setName("Updated Name");
 
-        ProductCategoryEntity entity = new ProductCategoryEntity();
-        entity.setId(2L);
-        entity.setName("Old Name");
+        ProductCategoryEntity productCategoryEntity = new ProductCategoryEntity();
+        productCategoryEntity.setId(2L);
+        productCategoryEntity.setName("Old Name");
 
         // Act
-        entity.update(id, productCategory);
+        productCategoryEntity.update(id, productCategoryEntity);
 
         // Assert
-        assertEquals(id, entity.getId());
-        assertEquals("Updated Name", entity.getName());
+        assertEquals(id, productCategoryEntity.getId());
+        assertEquals("Updated Name", productCategoryEntity.getName());
     }
 
     @Test

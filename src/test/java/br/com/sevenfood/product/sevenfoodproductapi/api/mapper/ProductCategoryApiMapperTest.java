@@ -2,7 +2,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.api.mapper;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductCategoryRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.ProductCategoryResponse;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductCategoryApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductCategoryApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -24,7 +24,7 @@ class ProductCategoryApiMapperTest {
         request.setName("Electronics");
 
         // Act
-        ProductCategory productCategory = mapper.fromRquest(request);
+        ProductCategory productCategory = mapper.fromRequest(request);
 
         // Assert
         assertNotNull(productCategory);
@@ -39,7 +39,7 @@ class ProductCategoryApiMapperTest {
         productCategory.setName("Electronics");
 
         // Act
-        ProductCategoryResponse response = mapper.fromEntidy(productCategory);
+        ProductCategoryResponse response = mapper.fromEntity(productCategory);
 
         // Assert
         assertNotNull(response);

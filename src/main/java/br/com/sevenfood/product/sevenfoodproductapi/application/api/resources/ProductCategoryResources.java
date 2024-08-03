@@ -3,7 +3,7 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.api.resources;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductCategoryRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.ProductCategoryResponse;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductCategoryApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductCategoryApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.Constants;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.util.RestUtils;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
@@ -46,13 +46,13 @@ public class ProductCategoryResources {
     public ResponseEntity<ProductCategoryResponse> save(@Valid @RequestBody ProductCategoryRequest request) {
         try {
             log.info("Chegada do objeto para ser salvo {}", request);
-            ProductCategory productCategory = productCategoryApiMapper.fromRquest(request);
+            ProductCategory productCategory = productCategoryApiMapper.fromRequest(request);
             ProductCategory saved = createProductCategoryPort.save(productCategory);
             if (saved == null) {
                 throw new ResourceFoundException("Produto não encontroado ao cadastrar");
             }
 
-            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntidy(saved);
+            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntity(saved);
             URI location = RestUtils.getUri(productCategoryResponse.getId());
             return ResponseEntity.created(location).body(productCategoryResponse);
         } catch (Exception ex) {
@@ -71,13 +71,13 @@ public class ProductCategoryResources {
     public ResponseEntity<ProductCategoryResponse> update(@PathVariable("id") Long id, @Valid @RequestBody ProductCategoryRequest request) {
         try {
             log.info("Chegada do objeto para ser alterado {}", request);
-            var productCategory = productCategoryApiMapper.fromRquest(request);
+            var productCategory = productCategoryApiMapper.fromRequest(request);
             ProductCategory updated = updateProductCategoryPort.update(id, productCategory);
             if (updated == null) {
                 throw new ResourceFoundException("\"Produto não encontroado ao atualizar");
             }
 
-            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntidy(updated);
+            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntity(updated);
             return ResponseEntity.ok(productCategoryResponse);
         } catch (Exception ex) {
             log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-update: {}", ex.getMessage());
@@ -117,7 +117,7 @@ public class ProductCategoryResources {
                 throw new ResourceFoundException("Produto não encontrado ao buscar por código");
             }
 
-            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntidy(productCategorySaved);
+            ProductCategoryResponse productCategoryResponse = productCategoryApiMapper.fromEntity(productCategorySaved);
             return ResponseEntity.ok(productCategoryResponse);
 
         } catch (Exception ex) {

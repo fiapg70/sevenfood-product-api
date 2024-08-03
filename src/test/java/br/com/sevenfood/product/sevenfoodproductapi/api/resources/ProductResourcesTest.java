@@ -1,7 +1,7 @@
 package br.com.sevenfood.product.sevenfoodproductapi.api.resources;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductRequest;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
@@ -274,7 +274,7 @@ class ProductResourcesTest {
         ProductRequest product = new ProductRequest();
         String create = JsonUtil.getJson(product);
 
-        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontroado ao cadastrar"));
+        when(productApiMapper.fromRequest(product)).thenThrow(new RuntimeException("Produto não encontroado ao cadastrar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/products")
@@ -337,7 +337,7 @@ class ProductResourcesTest {
         ProductRequest product = new ProductRequest();
         String create = JsonUtil.getJson(product);
 
-        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontroado ao atualizar"));
+        when(productApiMapper.fromRequest(product)).thenThrow(new RuntimeException("Produto não encontroado ao atualizar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .put("/v1/products/{id}", productId)
@@ -383,7 +383,7 @@ class ProductResourcesTest {
     @Test
     void testByCode_Exception() throws Exception {
         ProductRequest product = new ProductRequest();
-        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por código"));
+        when(productApiMapper.fromRequest(product)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por código"));
 
         MvcResult result = mockMvc.perform(get("/v1/products/code/{code}", 99L))
                 .andDo(print())
@@ -409,7 +409,7 @@ class ProductResourcesTest {
     @Test
     void testById_Exception() throws Exception {
         ProductRequest product = new ProductRequest();
-        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por id"));
+        when(productApiMapper.fromRequest(product)).thenThrow(new RuntimeException("Produto não encontrado ao buscar por id"));
 
         MvcResult result = mockMvc.perform(get("/v1/products/{id}", 99L))
                 .andDo(print())

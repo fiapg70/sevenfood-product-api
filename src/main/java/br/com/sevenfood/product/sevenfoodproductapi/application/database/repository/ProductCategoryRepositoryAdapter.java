@@ -66,7 +66,7 @@ public class ProductCategoryRepositoryAdapter implements ProductCategoryReposito
         Optional<ProductCategoryEntity> resultById = productCategoryRepository.findById(id);
         if (resultById.isPresent()) {
             ProductCategoryEntity productCategoryToChange = resultById.get();
-            productCategoryToChange.update(id, productCategory);
+            productCategoryToChange.update(id, productCategoryToChange);
 
             return productCategoryMapper.fromEntityToModel(productCategoryRepository.save(productCategoryToChange));
         }

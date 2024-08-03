@@ -1,7 +1,7 @@
 package br.com.sevenfood.product.sevenfoodproductapi.api.resources;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.RestaurantRequest;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.RestaurantApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.RestaurantApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
@@ -135,7 +135,7 @@ class RestaurantResourcesTest {
         RestaurantRequest restaurantRequest = new RestaurantRequest();
         String create = JsonUtil.getJson(restaurantRequest);
 
-        when(productApiMapper.fromRquest(restaurantRequest)).thenThrow(new RuntimeException("Restaurante não encontroado ao atualizar"));
+        when(productApiMapper.fromRequest(restaurantRequest)).thenThrow(new RuntimeException("Restaurante não encontroado ao atualizar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/restaurants")
@@ -187,7 +187,7 @@ class RestaurantResourcesTest {
         RestaurantRequest product = new RestaurantRequest();
         String create = JsonUtil.getJson(product);
 
-        when(productApiMapper.fromRquest(product)).thenThrow(new RuntimeException("Restaurante não encontroado ao atualizar"));
+        when(productApiMapper.fromRequest(product)).thenThrow(new RuntimeException("Restaurante não encontroado ao atualizar"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .put("/v1/restaurants/{id}", 99L)
@@ -221,7 +221,7 @@ class RestaurantResourcesTest {
     @Test
     void testById_Exception() throws Exception {
         RestaurantRequest restaurantRequest = new RestaurantRequest();
-        when(productApiMapper.fromRquest(restaurantRequest)).thenThrow(new RuntimeException("Restaurante não encontrado ao buscar por id"));
+        when(productApiMapper.fromRequest(restaurantRequest)).thenThrow(new RuntimeException("Restaurante não encontrado ao buscar por id"));
 
         MvcResult result = mockMvc.perform(get("/v1/restaurants/{id}", 99L))
                 .andDo(print())

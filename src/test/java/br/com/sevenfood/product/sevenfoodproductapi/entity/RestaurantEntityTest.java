@@ -16,7 +16,7 @@ class RestaurantEntityTest {
         newRestaurant.setName("Updated Restaurant");
         newRestaurant.setCnpj("98.765.432/0001-11");
 
-        restaurant.update(2L, newRestaurant);
+        restaurant.update(2L, restaurant);
 
         assertThat(restaurant.getId()).isEqualTo(2L);
         assertThat(restaurant.getName()).isEqualTo("Updated Restaurant");
@@ -37,7 +37,7 @@ class RestaurantEntityTest {
         entity.setCnpj("Old CNPJ");
 
         // Act
-        entity.update(id, restaurant);
+        entity.update(id, entity);
 
         // Assert
         assertEquals(id, entity.getId());
