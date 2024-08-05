@@ -2,7 +2,9 @@ package br.com.sevenfood.product.sevenfoodproductapi.application.api.resources;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.ProductRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.ProductResponse;
-import br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper.ProductApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductApiMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.commons.Constants;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.util.RestUtils;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.product.*;
@@ -10,28 +12,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("/v1/products")
-@Data
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
+@CrossOrigin(origins = "*", allowedHeaders = "Content-Type, Authorization", maxAge = 3600)
 public class ProductResources {
 
     private final CreateProductPort createProductPort;
@@ -42,58 +38,60 @@ public class ProductResources {
     private final ProductApiMapper productApiMapper;
 
     @Operation(summary = "Create a new Product", tags = {"products", "post"})
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", content = {
-                    @Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    @ApiResponse(responseCode = "201", content = {
+            @Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")})
+    @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-
     public ResponseEntity<ProductResponse> save(@Valid @RequestBody ProductRequest request) {
         try {
-            log.info("Chegada" + request);
-            Product product = productApiMapper.fromRquest(request);
+            log.info("Chegada do objeto para ser salvo {}", request);
+            Product product = productApiMapper.fromRequest(request);
             Product saved = createProductPort.save(product);
-
-            ProductResponse productResponse = productApiMapper.fromEntidy(saved);
-            if (productResponse == null) {
-                return ResponseEntity.ok().build();
+            if (saved == null) {
+                throw new ResourceFoundException("Produto não encontroado ao cadastrar");
             }
+
+            ProductResponse productResponse = productApiMapper.fromEntity(saved);
             URI location = RestUtils.getUri(productResponse.getId());
 
             return ResponseEntity.created(location).body(productResponse);
         } catch (Exception ex) {
-            log.info("Erro: " + ex.getMessage());
+            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-save: {}", ex.getMessage());
+            return ResponseEntity.ok().build();
         }
-        return null;
     }
 
     @Operation(summary = "Update a Product by Id", tags = {"products", "put"})
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = {
-                    @Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())}),
-            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})})
+    @ApiResponse(responseCode = "200", content = {
+            @Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")})
+    @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})
+    @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProductResponse> update(@PathVariable("id") Long id, @Valid @RequestBody ProductRequest request) {
-        var product = productApiMapper.fromRquest(request);
-        Product updated = updateProductPort.update(id, product);
+        try {
+            log.info("Chegada do objeto para ser alterado {}", request);
+            var product = productApiMapper.fromRequest(request);
+            Product updated = updateProductPort.update(id, product);
+            if (updated == null) {
+                throw new ResourceFoundException("Produto não encontroado ao atualizar");
+            }
 
-        ProductResponse productResponse = productApiMapper.fromEntidy(updated);
-        if (productResponse == null) {
+            ProductResponse productResponse = productApiMapper.fromEntity(updated);
+            return ResponseEntity.ok(productResponse);
+        } catch (Exception ex) {
+            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-update: {}", ex.getMessage());
             return ResponseEntity.ok().build();
         }
-        return ResponseEntity.ok(productResponse);
     }
 
     @Operation(summary = "Retrieve all Product", tags = {"products", "get", "filter"})
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = {
-                    @Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "204", description = "There are no Associations", content = {
-                    @Content(schema = @Schema())}),
-            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    @ApiResponse(responseCode = "200", content = {
+            @Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")})
+    @ApiResponse(responseCode = "204", description = "There are no Associations", content = {
+            @Content(schema = @Schema())})
+    @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<ProductResponse>> findAll() {
@@ -108,71 +106,57 @@ public class ProductResources {
             summary = "Retrieve a Product by Id",
             description = "Get a Product object by specifying its id. The response is Association object with id, title, description and published status.",
             tags = {"products", "get"})
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())}),
-            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")})
+    @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})
+    @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ProductResponse> findOne(@PathVariable("id") Long id) {
-        Product productSaved = findByIdProductPort.findById(id);
-        if (productSaved != null) {
-            ProductResponse productResponse = productApiMapper.fromEntidy(productSaved);
-            return ResponseEntity.ok(productResponse);
-        }
+        try {
+            Product productSaved = findByIdProductPort.findById(id);
+            if (productSaved == null) {
+                throw new ResourceFoundException("Produto não encontrado ao buscar por id");
+            }
 
-        return ResponseEntity.noContent().build();
+            ProductResponse productResponse = productApiMapper.fromEntity(productSaved);
+            return ResponseEntity.ok(productResponse);
+        } catch (Exception ex) {
+            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findOne: {}", ex.getMessage());
+            return ResponseEntity.ok().build();
+        }
     }
 
     @Operation(
             summary = "Retrieve a Product by Id",
             description = "Get a Product object by specifying its id. The response is Association object with id, title, description and published status.",
             tags = {"products", "get"})
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())}),
-            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ProductResources.class), mediaType = "application/json")})
+    @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})
+    @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})
     @GetMapping("/code/{code}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ProductResponse> findByCode(@PathVariable("code") String code) {
-        Product productSaved = findByIdProductPort.findByCode(code);
-        if (productSaved != null) {
-            ProductResponse productResponse = productApiMapper.fromEntidy(productSaved);
-            return ResponseEntity.ok(productResponse);
-        }
+        try {
 
-        return ResponseEntity.noContent().build();
+            Product productSaved = findByIdProductPort.findByCode(code);
+            if (productSaved == null) {
+                throw new ResourceFoundException("Produto não encontrado ao buscar por código");
+            }
+
+            ProductResponse productResponse = productApiMapper.fromEntity(productSaved);
+            return ResponseEntity.ok(productResponse);
+        } catch (Exception ex) {
+            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findByCode: {}", ex.getMessage());
+            return ResponseEntity.ok().build();
+        }
     }
 
     @Operation(summary = "Delete a Product by Id", tags = {"producttrus", "delete"})
-    @ApiResponses({@ApiResponse(responseCode = "204", content = {@Content(schema = @Schema())}),
-            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    @ApiResponse(responseCode = "204", content = {@Content(schema = @Schema())})
+    @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<?> remove(@PathVariable("id") Long id) {
-        boolean removed = deleteProductPort.remove(id);
-        return removed ? ResponseEntity.ok("Dados deletados!") : ResponseEntity.notFound().build();
-    }
-
-    /**
-     * This is an error handler specific to this controller. It overrides the global error handler.
-     * In a real-world application, this particular combination of error handlers is almost
-     * certainly undesirable: the global error handler returns a complex JSON object, while the
-     * local error handler returns a string.
-     *
-     * @param ex
-     * @return
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public String handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        var result = "There's a validation error in the product.";
-        var errors = ex.getBindingResult().getAllErrors();
-        var details = errors.stream().map(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            return "\n" + fieldName + ":" + errorMessage;
-        }).collect(Collectors.joining());
-        return result;
+    public ResponseEntity<String> remove(@PathVariable("id") Long id) {
+        deleteProductPort.remove(id);
+        return ResponseEntity.noContent().build();
     }
 }

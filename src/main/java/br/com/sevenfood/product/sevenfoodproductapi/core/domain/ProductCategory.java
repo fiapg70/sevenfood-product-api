@@ -16,9 +16,11 @@ import java.io.Serializable;
 @Schema(description = "Product", requiredProperties = {"id, code, name, price, productCategory, restaurant"})
 @Tag(name = "Product", description = "Model")
 public class ProductCategory implements Serializable {
+
     @Schema(description = "Unique identifier of the Product.",
             example = "1")
     private Long id;
+
     @Schema(description = "Unique identifier of the Product.",
             example = "1")
     private String name;

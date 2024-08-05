@@ -1,6 +1,7 @@
 package br.com.sevenfood.product.sevenfoodproductapi.repository;
 
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
@@ -14,14 +15,14 @@ import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.TestPropertySource;
 
 import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @DataJpaTest
@@ -49,9 +50,8 @@ class ProductCategoryRepositoryTest {
                 .build();
     }
 
-
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         productRepository.deleteAll();
         restaurantRepository.deleteAll();
         productCategoryRepository.deleteAll();
@@ -92,22 +92,14 @@ class ProductCategoryRepositoryTest {
         assertThat(productCategory1).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
     }
 
-    @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        ProductCategoryEntity productCategory = createInvalidProductCategory();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        ProductCategoryEntity productCategory = new ProductCategoryEntity();
+        productCategory.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
+        assertThrows(DataIntegrityViolationException.class, () -> {
             productCategoryRepository.save(productCategory);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertNotNull(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
     private ProductCategoryEntity createInvalidProductCategory() {

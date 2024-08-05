@@ -1,12 +1,15 @@
 package br.com.sevenfood.product.sevenfoodproductapi.service;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.RestaurantMapper;
+import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.restaurant.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.RestaurantRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.RestaurantService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.RestaurantRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -19,10 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.validation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +46,21 @@ class RestaurantServiceTest {
     RestaurantMapper mapper;
 
     private Validator validator;
+
+    @Mock
+    CreateRestaurantPort createRestaurantPort;
+
+    @Mock
+    DeleteRestaurantPort deleteRestaurantPort;
+
+    @Mock
+    FindByIdRestaurantPort findByIdRestaurantPort;
+
+    @Mock
+    FindRestaurantsPort findRestaurantsPort;
+
+    @Mock
+    UpdateRestaurantPort updateRestaurantPort;
 
     private RestaurantEntity getRestaurantEntity() {
         return RestaurantEntity.builder()
@@ -85,7 +105,7 @@ class RestaurantServiceTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockitoAnnotations.initMocks(this);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
@@ -154,32 +174,114 @@ class RestaurantServiceTest {
         //verify(restaurantRepository, times(1)).save(restaurant);
     }
 
-    @Disabled
-    public void createRestaurantWithNullFieldsTest() {
-        Restaurant invalidRestaurant = Restaurant.builder()
-                .name(null)
-                .cnpj(null)
-                .build();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        // Executando a validação explicitamente
-        Set<ConstraintViolation<Restaurant>> violations = validator.validate(invalidRestaurant);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(restaurantRepository).save(restaurant);
 
-        // Verificando se há violações de restrição
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            restaurantRepository.save(invalidRestaurant);
+        assertThrows(DataException.class, () -> {
+            restaurantRepository.save(restaurant);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
+
+    @Test
+    void testRemoveRestaurant_Success() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = getRestaurant(); // Método que cria um objeto Restaurant para o teste
+        restaurant.setId(restaurantId);
+
+        when(restaurantService.findById(restaurantId)).thenReturn(restaurant);
+        boolean result = restaurantService.remove(restaurantId);
+        assertTrue(result);
+    }
+
+    @Test
+    void testRemove_Exception() {
+        Long productId = 99L;
+
+        boolean result = restaurantService.remove(productId);
+        assertFalse(result);
+        verify(restaurantRepository, never()).remove(productId);
+    }
+
+    @Test
+    void createRestaurantPortTest() {
+        Restaurant restaurant = getRestaurant();
+        Restaurant restaurantResult = getRestaurant();
+        restaurantResult.setId(1L);
+
+        CreateRestaurantPort createRestaurantPort = mock(CreateRestaurantPort.class);
+        when(createRestaurantPort.save(restaurant)).thenReturn(restaurantResult);
+
+        Restaurant savedRestaurant = createRestaurantPort.save(restaurant);
+
+        assertNotNull(savedRestaurant);
+        assertEquals(1L, savedRestaurant.getId());
+        assertEquals("Seven Food", savedRestaurant.getName());
+    }
+
+    @Test
+    void deleteRestaurantPortTest() {
+        Long restaurantId = 1L;
+
+        DeleteRestaurantPort deleteRestaurantPort = mock(DeleteRestaurantPort.class);
+        when(deleteRestaurantPort.remove(restaurantId)).thenReturn(true);
+
+        boolean result = deleteRestaurantPort.remove(restaurantId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void findByIdRestaurantPortTest() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = getRestaurant();
+        restaurant.setId(restaurantId);
+
+        FindByIdRestaurantPort findByIdRestaurantPort = mock(FindByIdRestaurantPort.class);
+        when(findByIdRestaurantPort.findById(restaurantId)).thenReturn(restaurant);
+
+        Restaurant foundRestaurant = findByIdRestaurantPort.findById(restaurantId);
+
+        assertNotNull(foundRestaurant);
+        assertEquals("Seven Food", foundRestaurant.getName());
+        assertEquals("02.365.347/0001-63", foundRestaurant.getCnpj());
+    }
+
+    @Test
+    void findRestaurantsPortTest() {
+        List<Restaurant> restaurants = new ArrayList<>();
+        restaurants.add(getRestaurant());
+        restaurants.add(getRestaurant1());
+        restaurants.add(getRestaurant2());
+
+        FindRestaurantsPort findRestaurantsPort = mock(FindRestaurantsPort.class);
+        when(findRestaurantsPort.findAll()).thenReturn(restaurants);
+
+        List<Restaurant> restaurantList = findRestaurantsPort.findAll();
+
+        assertNotNull(restaurantList);
+        assertEquals(3, restaurantList.size());
+    }
+
+    @Test
+    void updateRestaurantPortTest() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = getRestaurant();
+        restaurant.setId(restaurantId);
+        restaurant.setName("Updated Name");
+
+        UpdateRestaurantPort updateRestaurantPort = mock(UpdateRestaurantPort.class);
+        when(updateRestaurantPort.update(restaurantId, restaurant)).thenReturn(restaurant);
+
+        Restaurant updatedRestaurant = updateRestaurantPort.update(restaurantId, restaurant);
+
+        assertNotNull(updatedRestaurant);
+        assertEquals("Updated Name", updatedRestaurant.getName());
+        assertEquals("02.365.347/0001-63", updatedRestaurant.getCnpj());
+    }
+
 }

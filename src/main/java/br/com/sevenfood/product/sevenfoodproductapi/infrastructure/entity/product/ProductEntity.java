@@ -1,6 +1,5 @@
 package br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product;
 
-import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.domain.AuditDomain;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
@@ -8,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -66,27 +64,28 @@ public class ProductEntity extends AuditDomain {
     private BigDecimal price;
 
     @Schema(description = "Restaurant of the User.",
-            example = "1", ref = "User")
+            example = "1", ref = "ProductCategoryEntity")
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "product_category_id", unique = true)
+    @JoinColumn(name = "product_category_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private ProductCategoryEntity productCategory;
 
     @Schema(description = "Restaurant of the User.",
-            example = "1", ref = "User")
+            example = "1", ref = "RestaurantEntity")
     @NotNull
-    @OneToOne
-    @JoinColumn(name = "restaurant_id", unique = true)
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private RestaurantEntity restaurant;
 
-    public void update(Long id, Product product) {
+    public void update(Long id, ProductEntity productEntity) {
         this.id = id;
-        this.name = product.getName();
-        this.pic = product.getPic();
-        this.description = product.getDescription();
-        this.price = product.getPrice();
-        //this.productCategoryEntity = product.getProductCategory();
+        this.name = productEntity.getName();
+        this.pic = productEntity.getPic();
+        this.description = productEntity.getDescription();
+        this.price = productEntity.getPrice();
+        this.productCategory = productEntity.getProductCategory();
+        this.restaurant = productEntity.getRestaurant();
     }
 }

@@ -1,4 +1,4 @@
-package br.com.sevenfood.product.sevenfoodproductapi.application.api.mappper;
+package br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.RestaurantRequest;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.RestaurantResponse;
@@ -14,13 +14,11 @@ public interface RestaurantApiMapper {
 
     @Mapping(source = "name", target = "name")
     @Mapping(source = "cnpj", target = "cnpj")
-    Restaurant fromRquest(RestaurantRequest request);
+    Restaurant fromRequest(RestaurantRequest request);
 
     @InheritInverseConfiguration
     @Mapping(target = "id", source = "id")
-    RestaurantResponse fromEntidy(Restaurant restaurant);
+    RestaurantResponse fromEntity(Restaurant restaurant);
 
    List<RestaurantResponse> map(List<Restaurant> restaurants);
-
-
 }

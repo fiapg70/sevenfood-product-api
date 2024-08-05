@@ -1,5 +1,6 @@
 package br.com.sevenfood.product.sevenfoodproductapi.application.database.repository;
 
+import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.RestaurantMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.exception.CNPJFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
@@ -22,7 +23,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
 
     @Override
     public Restaurant save(Restaurant restaurant) {
-        RestaurantEntity restaurantEntity = restaurantMapper.fromModelTpEntity(restaurant);
+        RestaurantEntity restaurantEntity = restaurantMapper.fromModelToEntity(restaurant);
         Optional<RestaurantEntity> byCnpj = restaurantRepository.findByCnpj(restaurantEntity.getCnpj());
 
         if (byCnpj.isPresent()) {
@@ -30,6 +31,9 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
         }
 
         RestaurantEntity saved = restaurantRepository.save(restaurantEntity);
+        if (saved.getName() == null) {
+            throw new ResourceFoundException("Erro ao salvar produto no repositorio");
+        }
         return restaurantMapper.fromEntityToModel(saved);
     }
 
@@ -64,7 +68,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
         if (resultById.isPresent()) {
 
             RestaurantEntity restaurantToChange = resultById.get();
-            restaurantToChange.update(id, restaurant);
+            restaurantToChange.update(id, restaurantToChange);
 
             return restaurantMapper.fromEntityToModel(restaurantRepository.save(restaurantToChange));
         }
