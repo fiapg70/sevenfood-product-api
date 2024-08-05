@@ -6,12 +6,15 @@ import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductReposi
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ProductRepositoryAdapter implements ProductRepositoryPort {
@@ -21,15 +24,24 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
 
     @Override
     public Product save(Product product) {
-        ProductEntity productEntity = productMapper.fromModelTpEntity(product);
-        productEntity.setCode(UUID.randomUUID().toString());
-        ProductEntity saved = productRepository.save(productEntity);
-        return productMapper.fromEntityToModel(saved);
+        try {
+            ProductEntity productEntity = productMapper.fromModelTpEntity(product);
+            if (productEntity != null) {
+                productEntity.setCode(UUID.randomUUID().toString());
+                ProductEntity saved = productRepository.save(productEntity);
+                return productMapper.fromEntityToModel(saved);
+            }
+        } catch (Exception e) {
+            log.info("Erro ao salvar produto: " + e.getMessage());
+            return null;
+        }
+
+        return null;
     }
 
     @Override
     public boolean remove(Long id) {
-         try {
+        try {
             productRepository.deleteById(id);
             return Boolean.TRUE;
         } catch (Exception e) {
@@ -58,7 +70,7 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
         if (resultById.isPresent()) {
 
             ProductEntity productToChange = resultById.get();
-            productToChange.update(id, product);
+            productToChange.update(id, productToChange);
 
             return productMapper.fromEntityToModel(productRepository.save(productToChange));
         }

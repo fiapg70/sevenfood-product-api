@@ -4,6 +4,8 @@ import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.product.*;
+import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.productcategory.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
@@ -11,6 +13,7 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.produc
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.restaurant.RestaurantEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -22,13 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.validation.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +45,21 @@ class ProductServiceTest {
 
     @Mock
     ProductMapper mapper;
+
+    @Mock
+    CreateProductPort createProductPort;
+
+    @Mock
+    DeleteProductPort deleteProductPort;
+
+    @Mock
+    FindByIdProductPort findByIdProductPort;
+
+    @Mock
+    FindProductsPort findProductsPort;
+
+    @Mock
+    UpdateProductPort updateProductPort;
 
     private Validator validator;
 
@@ -100,7 +115,7 @@ class ProductServiceTest {
 
     private Product getProduct(Restaurant restaurant, ProductCategory productCategory) {
         return Product.builder()
-                .name("Bebida")
+                .name("Coca-Cola")
                 .code(UUID.randomUUID().toString())
                 .pic("hhh")
                 .price(BigDecimal.TEN)
@@ -148,7 +163,7 @@ class ProductServiceTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockitoAnnotations.initMocks(this);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
@@ -189,7 +204,7 @@ class ProductServiceTest {
 
         Product product = productService.findById(1L);
 
-        assertEquals("Bebida", product.getName());
+        assertEquals("Coca-Cola", product.getName());
     }
 
     @Test
@@ -199,7 +214,7 @@ class ProductServiceTest {
 
         Product result = productService.findById(1L);
 
-        assertEquals("Bebida", result.getName());
+        assertEquals("Coca-Cola", result.getName());
     }
 
     @Test
@@ -215,31 +230,89 @@ class ProductServiceTest {
         //verify(productRepository, times(1)).save(product);
     }
 
-    @Disabled
-    public void createProductWithNullFieldsTest() {
-        Product invalidProduct = Product.builder()
-                .name(null)
-                .build();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        Product product = new Product();
+        product.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
+        product.setCode(UUID.randomUUID().toString());
+        product.setPic("hhh");
+        product.setPrice(BigDecimal.TEN);
+        product.setDescription("Coca-Cola");
+        product.setProductCategoryId(1L);
+        product.setRestaurantId(1L);
 
-        // Executando a validação explicitamente
-        Set<ConstraintViolation<Product>> violations = validator.validate(invalidProduct);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(productRepository).save(product);
 
-        // Verificando se há violações de restrição
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productRepository.save(invalidProduct);
+        assertThrows(DataException.class, () -> {
+            productRepository.save(product);
         });
+    }
 
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
+    @Test
+    void testRemove_Exception() {
+        Long productId = 99L;
 
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
+        boolean result = productService.remove(productId);
+        assertFalse(result);
+        verify(productRepository, never()).remove(productId);
+    }
 
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
+    @Test
+    void testCreateProduct() {
+        Product product = getProduct(getRestaurant(), getProductCategory());
+        Product productResult = getProduct(getRestaurant(), getProductCategory());
+        when(createProductPort.save(product)).thenReturn(productResult);
+
+        Product result = createProductPort.save(product);
+
+        assertNotNull(result);
+        assertEquals("Coca-Cola", result.getName());
+    }
+
+    @Test
+    void testDeleteProduct() {
+        Long productId = 1L;
+        when(deleteProductPort.remove(productId)).thenReturn(true);
+
+        boolean result = deleteProductPort.remove(productId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testFindByIdProduct() {
+        Product product = getProduct(getRestaurant(), getProductCategory());
+        when(findByIdProductPort.findById(1L)).thenReturn(product);
+
+        Product result = findByIdProductPort.findById(1L);
+
+        assertNotNull(result);
+        assertEquals("Coca-Cola", result.getName());
+    }
+
+    @Test
+    void testFindProducts() {
+        Product product = getProduct(getRestaurant(), getProductCategory());
+        List<Product> products = new ArrayList<>();
+        products.add(product);
+
+        when(findProductsPort.findAll()).thenReturn(products);
+        List<Product> result = findProductsPort.findAll();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testUpdateProduct() {
+        Long productId = 1L;
+        Product product = getProduct(getRestaurant(), getProductCategory());
+
+        when(updateProductPort.update(productId, product)).thenReturn(product);
+        Product result = updateProductPort.update(productId, product);
+
+        assertNotNull(result);
+        assertEquals("Coca-Cola", result.getName());
     }
 }

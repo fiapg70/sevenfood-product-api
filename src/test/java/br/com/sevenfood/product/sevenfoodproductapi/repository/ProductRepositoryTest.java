@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.TestPropertySource;
 
 import javax.validation.ConstraintViolationException;
@@ -50,7 +51,7 @@ class ProductRepositoryTest {
     private Faker faker = new Faker();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         log.info("Cleaning up database...");
         productRepository.deleteAll();
         productCategoryRepository.deleteAll();
@@ -222,22 +223,20 @@ class ProductRepositoryTest {
         //assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
     }
 
-    @Disabled
-    void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        ProductEntity productCategory = createInvalidProductCategory();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
+        productEntity.setCode(UUID.randomUUID().toString());
+        productEntity.setPic("hhh");
+        productEntity.setPrice(BigDecimal.TEN);
+        productEntity.setDescription("Coca-Cola");
+        productEntity.setProductCategory(productCategory);
+        productEntity.setRestaurant(restaurant);
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productRepository.save(productCategory);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            productRepository.save(productEntity);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertTrue(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
     private ProductEntity createInvalidProductCategory() {

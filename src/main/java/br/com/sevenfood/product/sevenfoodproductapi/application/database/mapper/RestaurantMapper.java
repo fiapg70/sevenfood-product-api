@@ -13,7 +13,8 @@ public interface RestaurantMapper {
 
     @Mapping(source = "name", target = "name")
     @Mapping(source = "cnpj", target = "cnpj")
-    RestaurantEntity fromModelTpEntity(Restaurant restaurant);
+    RestaurantEntity fromModelToEntity(Restaurant restaurant);
+
     @InheritInverseConfiguration
     @Mapping(target = "id", source = "id")
     Restaurant fromEntityToModel(RestaurantEntity restaurantEntity);

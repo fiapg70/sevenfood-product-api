@@ -37,8 +37,8 @@ public class ProductCategoryEntity extends AuditDomain {
     @Column(name = "name", length = 255)
     private String name;
 
-    public void update(Long id, ProductCategory productCategory) {
+    public void update(Long id, ProductCategoryEntity productCategoryEntity) {
         this.id = id;
-        this.name = productCategory.getName();
+        this.name = productCategoryEntity.getName();
     }
 }

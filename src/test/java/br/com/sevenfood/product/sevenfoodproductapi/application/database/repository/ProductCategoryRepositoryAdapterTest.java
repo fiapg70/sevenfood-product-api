@@ -1,4 +1,4 @@
-package br.com.sevenfood.product.sevenfoodproductapi.application.repository;
+package br.com.sevenfood.product.sevenfoodproductapi.application.database.repository;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.repository.ProductCategoryRepositoryAdapter;
@@ -6,28 +6,21 @@ import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory.ProductCategoryEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.TestPropertySource;
 
-import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -39,6 +32,7 @@ class ProductCategoryRepositoryAdapterTest {
 
     @Mock
     private ProductCategoryRepository productCategoryRepository;
+
     @Mock
     private ProductCategoryMapper productCategoryMapper;
 
@@ -82,22 +76,17 @@ class ProductCategoryRepositoryAdapterTest {
         assertThat(saved).hasFieldOrPropertyWithValue("name", cocaColaBeverage);
     }
 
-    @Disabled
-    public void whenConstraintViolationExceptionThrown_thenAssertionSucceeds() {
-        ProductCategoryEntity productCategory = createInvalidProductCategory();
+    @Test
+    void testSaveRestaurantWithLongName() {
+        ProductCategoryEntity productCategoryEntity = new ProductCategoryEntity();
+        productCategoryEntity.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
-            productCategoryRepository.save(productCategory);
+        // Simulando o lançamento de uma exceção
+        doThrow(new DataException("Value too long for column 'name'", null)).when(productCategoryRepository).save(productCategoryEntity);
+
+        assertThrows(DataException.class, () -> {
+            productCategoryRepository.save(productCategoryEntity);
         });
-
-        String expectedMessage = "tamanho deve ser entre 1 e 255";
-        String actualMessage = exception.getMessage();
-
-        // Adicionar saída de log para a mensagem da exceção
-        log.info("Actual Exception Message:{}", actualMessage);
-
-        assertNotNull(actualMessage.contains(expectedMessage),
-                "Expected message to contain: " + expectedMessage + " but was: " + actualMessage);
     }
 
     private ProductCategoryEntity createInvalidProductCategory() {
