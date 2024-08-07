@@ -44,21 +44,16 @@ public class RestaurantResources {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<RestaurantResponse> save(@Valid @RequestBody RestaurantRequest request) {
-        try {
-            log.info("Chegada do objeto para ser salvo {}", request);
-            Restaurant restaurant = restaurantApiMapper.fromRequest(request);
-            Restaurant saved = createRestaurantPort.save(restaurant);
-            if (saved == null) {
-                throw new ResourceFoundException("Produto não encontroado ao cadastrar");
-            }
-
-            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(saved);
-            URI location = RestUtils.getUri(restaurantResponse.getId());
-            return ResponseEntity.created(location).body(restaurantResponse);
-        } catch (Exception ex) {
-            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-save: {}", ex.getMessage());
-            return ResponseEntity.ok().build();
+        log.info("Chegada do objeto para ser salvo {}", request);
+        Restaurant restaurant = restaurantApiMapper.fromRequest(request);
+        Restaurant saved = createRestaurantPort.save(restaurant);
+        if (saved == null) {
+            throw new ResourceFoundException("Produto não encontroado ao cadastrar");
         }
+
+        RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(saved);
+        URI location = RestUtils.getUri(restaurantResponse.getId());
+        return ResponseEntity.created(location).body(restaurantResponse);
     }
 
     @Operation(summary = "Update a Restaurant by Id", tags = {"restaurants", "put"})
@@ -69,20 +64,15 @@ public class RestaurantResources {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<RestaurantResponse> update(@PathVariable("id") Long id, @Valid @RequestBody RestaurantRequest request) {
-        try {
-            log.info("Chegada do objeto para ser alterado {}", request);
-            var restaurant = restaurantApiMapper.fromRequest(request);
-            Restaurant updated = updateRestaurantPort.update(id, restaurant);
-            if (updated == null) {
-                throw new ResourceFoundException("Restaurante não encontroado ao atualizar");
-            }
-
-            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(updated);
-            return ResponseEntity.ok(restaurantResponse);
-        } catch (Exception ex) {
-            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-update: {}", ex.getMessage());
-            return ResponseEntity.ok().build();
+        log.info("Chegada do objeto para ser alterado {}", request);
+        var restaurant = restaurantApiMapper.fromRequest(request);
+        Restaurant updated = updateRestaurantPort.update(id, restaurant);
+        if (updated == null) {
+            throw new ResourceFoundException("Restaurante não encontroado ao atualizar");
         }
+
+        RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(updated);
+        return ResponseEntity.ok(restaurantResponse);
     }
 
     @Operation(summary = "Retrieve all Restaurant", tags = {"restaurants", "get", "filter"})
@@ -111,18 +101,13 @@ public class RestaurantResources {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<RestaurantResponse> findOne(@PathVariable("id") Long id) {
-        try {
-            Restaurant restaurantSaved = findByIdRestaurantPort.findById(id);
-            if (restaurantSaved == null) {
-                throw new ResourceFoundException("Produto não encontrado ao buscar por código");
-            }
-
-            RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(restaurantSaved);
-            return ResponseEntity.ok(restaurantResponse);
-        } catch (Exception ex) {
-            log.error(Constants.ERROR_EXCEPTION_RESOURCE + "-findByCode: {}", ex.getMessage());
-            return ResponseEntity.ok().build();
+        Restaurant restaurantSaved = findByIdRestaurantPort.findById(id);
+        if (restaurantSaved == null) {
+            throw new ResourceFoundException("Produto não encontrado ao buscar por código");
         }
+
+        RestaurantResponse restaurantResponse = restaurantApiMapper.fromEntity(restaurantSaved);
+        return ResponseEntity.ok(restaurantResponse);
     }
 
     @Operation(summary = "Delete a Restaurant by Id", tags = {"restauranttrus", "delete"})
