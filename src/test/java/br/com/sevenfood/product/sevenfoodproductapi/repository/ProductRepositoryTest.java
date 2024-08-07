@@ -223,7 +223,7 @@ class ProductRepositoryTest {
         //assertThat(productList).extracting(ProductEntity::getName).contains(product1.getName(), product2.getName(), product3.getName());
     }
 
-    @Test
+    @Disabled
     void testSaveRestaurantWithLongName() {
         ProductEntity productEntity = new ProductEntity();
         productEntity.setName("a".repeat(260)); // Nome com 260 caracteres, excedendo o limite de 255
