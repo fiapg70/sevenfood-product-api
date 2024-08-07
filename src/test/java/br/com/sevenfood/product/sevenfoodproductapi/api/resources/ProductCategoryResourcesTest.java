@@ -4,7 +4,9 @@ import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.ProductCategoryApiMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductCategoryRepository;
+import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.ProductRepository;
 import br.com.sevenfood.product.sevenfoodproductapi.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +49,9 @@ class ProductCategoryResourcesTest {
     @Autowired
     private ProductCategoryRepository repository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     private ProductCategory productCategory;
 
     private Long productCategoryId;
@@ -68,6 +73,7 @@ class ProductCategoryResourcesTest {
 
     @BeforeEach
     void setUp() {
+        productRepository.deleteAll();
         repository.deleteAll();
         this.productCategory = service.save(getProductCategory());
         this.productCategoryId = productCategory.getId();
