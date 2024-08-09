@@ -51,6 +51,22 @@ swagger:
   api:
     url: https://localhost:9924/api
 
+logging:
+  pattern:
+    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+
+management:
+  tracing:
+    baggage:
+      enabled: true
+    enabled: true
+    propagation:
+      type: 'w3c '
+    sampling:
+      probability: 1.0 # para enviar 100% da amostra'
+  zipkin:
+    tracing:
+      endpoint: 'http://18.212.8.96/api/v2/spans # alterar o endereco do Zipkin'
   #security:
   #  oauth2:
   #    client:
