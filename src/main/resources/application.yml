@@ -46,6 +46,11 @@ spring:
         secret-key: ${AWS_SECRET_ACCESS_KEY}
     region:
       static: us-east-1
+
+swagger:
+  api:
+    url: https://localhost:9924/api
+
   #security:
   #  oauth2:
   #    client:

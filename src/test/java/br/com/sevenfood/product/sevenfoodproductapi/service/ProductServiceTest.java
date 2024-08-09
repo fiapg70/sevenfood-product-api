@@ -5,7 +5,6 @@ import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Product;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.product.*;
-import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.productcategory.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductService;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.product.ProductEntity;
@@ -15,7 +14,6 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.Pr
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,9 +21,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.validation.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -60,8 +59,6 @@ class ProductServiceTest {
 
     @Mock
     UpdateProductPort updateProductPort;
-
-    private Validator validator;
 
     private RestaurantEntity getRestaurantEntity() {
         return RestaurantEntity.builder()
@@ -165,8 +162,6 @@ class ProductServiceTest {
     @BeforeEach
     void init() {
         MockitoAnnotations.initMocks(this);
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
     }
 
     @Test
