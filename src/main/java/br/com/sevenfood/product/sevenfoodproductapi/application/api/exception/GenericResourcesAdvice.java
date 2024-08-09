@@ -4,6 +4,8 @@ import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response
 import br.com.sevenfood.product.sevenfoodproductapi.commons.exception.CNPJFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.exception.CPFFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -12,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.util.Date;
 import java.util.Set;
 

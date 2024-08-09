@@ -2,7 +2,6 @@ package br.com.sevenfood.product.sevenfoodproductapi.service;
 
 import br.com.sevenfood.product.sevenfoodproductapi.application.database.mapper.ProductCategoryMapper;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
-import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.productcategory.*;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.out.ProductCategoryRepositoryPort;
 import br.com.sevenfood.product.sevenfoodproductapi.core.service.ProductCategoryService;
@@ -11,7 +10,6 @@ import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.repository.Pr
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,14 +17,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.validation.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -58,8 +53,6 @@ class ProductCategoryServiceTest {
 
     @Mock
     UpdateProductCategoryPort updateProductCategoryPort;
-
-    private Validator validator;
 
     private ProductCategoryEntity getProductCategoryEntity() {
         return ProductCategoryEntity.builder()
@@ -100,8 +93,6 @@ class ProductCategoryServiceTest {
     @BeforeEach
     void init() {
         MockitoAnnotations.initMocks(this);
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
     }
 
     @Test

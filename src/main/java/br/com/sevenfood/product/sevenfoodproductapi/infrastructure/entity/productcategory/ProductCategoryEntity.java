@@ -1,17 +1,15 @@
 package br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.productcategory;
 
-import br.com.sevenfood.product.sevenfoodproductapi.core.domain.ProductCategory;
 import br.com.sevenfood.product.sevenfoodproductapi.infrastructure.entity.domain.AuditDomain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "tb_product_category")

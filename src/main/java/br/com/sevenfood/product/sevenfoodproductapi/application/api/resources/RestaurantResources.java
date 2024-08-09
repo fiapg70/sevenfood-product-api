@@ -4,7 +4,6 @@ import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.request.
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.dto.response.RestaurantResponse;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.exception.ResourceFoundException;
 import br.com.sevenfood.product.sevenfoodproductapi.application.api.mapper.RestaurantApiMapper;
-import br.com.sevenfood.product.sevenfoodproductapi.commons.Constants;
 import br.com.sevenfood.product.sevenfoodproductapi.commons.util.RestUtils;
 import br.com.sevenfood.product.sevenfoodproductapi.core.domain.Restaurant;
 import br.com.sevenfood.product.sevenfoodproductapi.core.ports.in.restaurant.*;
@@ -12,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
